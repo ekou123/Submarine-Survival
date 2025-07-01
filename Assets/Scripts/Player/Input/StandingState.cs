@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
+using UnityEngine.InputSystem.LowLevel;
 
 public class StandingState : State
 {
@@ -13,6 +13,9 @@ public class StandingState : State
     bool grounded;
     bool sprint;
     float playerSpeed;
+    float sensitivity = 10;
+    private float pitch = 0f;
+    public float pitchClamp = 80f;
 
     Vector3 cVelocity;
 
@@ -37,13 +40,20 @@ public class StandingState : State
         gravityVelocity.y = 0;
 
         playerSpeed = character.playerBaseSpeed;
-        grounded = character.controller.isGrounded;
+        // grounded = character.controller.isGrounded;
         gravityValue = character.gravityValue;
+
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     public override void HandleInput()
     {
         base.HandleInput();
+
+        float mouseX = 0;
+        float mouseY = 0;
 
         if (jumpAction.triggered)
         {
@@ -61,29 +71,29 @@ public class StandingState : State
         {
             inCombat = true;
         }
+        if (lookAction.triggered)
+        {
+            Vector2 lookInput = lookAction.ReadValue<Vector2>();
 
-        input = moveAction.ReadValue<Vector2>();
-        velocity = new Vector3(input.x, 0, input.y);
+            mouseX = lookInput.x * sensitivity * Time.deltaTime;
+            mouseY = lookInput.y * sensitivity * Time.deltaTime;
 
-        // Vector3 inputDir = character.orientation.forward * input.x + character.orientation.right * input.y;
-            
+            character.transform.Rotate(Vector3.up * mouseX);
 
-        // if (inputDir != Vector3.zero)
-        // {
-        //     character.transform.forward = Vector3.Slerp(character.transform.forward, inputDir.normalized, Time.deltaTime * character.rotationSpeed);
-        // }
+            pitch -= mouseY;
+            pitch = Mathf.Clamp(pitch, -pitchClamp, pitchClamp);
+            character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        }
 
-         Vector3 camForward = character.cameraTransform.forward;
-        Vector3 camRight = character.cameraTransform.right;
-        camForward.y = 0f;
-        camRight.y = 0f;
-
-        //velocity = velocity.x * character.cameraTransform.right.normalized + velocity.z * character.cameraTransform.forward.normalized;
-        velocity = velocity.x * camRight.normalized + velocity.z * camForward.normalized;
-
-        velocity.y = 0f;
 
         
+
+        // Smoothly rotate character toward movement direction
+        // if (moveDir.sqrMagnitude > 0.01f)
+        // {
+        //     Quaternion targetRotation = Quaternion.LookRotation(moveDir);
+        //     character.transform.rotation = Quaternion.Slerp(character.transform.rotation, targetRotation, Time.deltaTime * character.rotationSpeed);
+        // }
     }
 
     public override void LogicUpdate()
@@ -112,45 +122,24 @@ public class StandingState : State
     {
         base.PhysicsUpdate();
 
-        gravityVelocity.y += gravityValue * Time.deltaTime;
+        // Read movement input
+        input = moveAction.ReadValue<Vector2>();
 
-        
-        if (grounded)
-        {
-            gravityVelocity.y = 0f;
-        }
+        // Get camera-relative directions
+        Vector3 camForward = character.cameraTransform.forward;
+        Vector3 camRight = character.cameraTransform.right;
 
-        Vector3 rbVelocity = character.rb.velocity;
-        float yVelocity = rbVelocity.y;
+        // Flatten camera direction (ignore vertical)
+        camForward.y = 0f;
+        camRight.y = 0f;
+        camForward.Normalize();
+        camRight.Normalize();
 
-        Vector3 horizontalVelocity = velocity * playerSpeed;
-        
+    // Compute movement direction relative to camera
+        Vector3 moveDir = camRight * input.x + camForward * input.y;
 
-        Vector3 finalVelocity = new Vector3(horizontalVelocity.x, yVelocity, horizontalVelocity.z);
-
-        character.rb.velocity = finalVelocity;
-
-
-        Vector3 flattened = new Vector3(finalVelocity.x, 0f, finalVelocity.z);
-        if (flattened.sqrMagnitude >= 0.01f)
-        {
-            character.transform.forward = flattened.normalized;
-        }
-
-        //currentVelocity = Vector3.SmoothDamp(currentVelocity, velocity, ref cVelocity, character.velocityDampTime);
-
-        //character.controller.Move((currentVelocity * playerSpeed + gravityVelocity) * Time.deltaTime);
-
-        //grounded = character.controller.isGrounded;
-
-
-        // if (character.photonView.IsMine)
-        // {
-        //     if (currentVelocity.sqrMagnitude > 0)
-        //     {
-        //         character.transform.forward = currentVelocity.normalized;
-        //     }
-        // }
+        // Save as velocity
+        velocity = moveDir;
     }
 
     public override void Exit()

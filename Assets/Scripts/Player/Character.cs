@@ -21,6 +21,8 @@ public class Character : MonoBehaviour {
     [Header("Controls")]
     public float playerSpeed;
     public float playerBaseSpeed = 5.0f;
+    public float playerBaseSwimSpeed = 3f;
+    public float playerSwimSpeed;
     public float crouchSpeed = 2.0f;
     public float sprintSpeed = 7.0f;
     public float jumpHeight = 0.8f;
@@ -48,6 +50,7 @@ public class Character : MonoBehaviour {
     public SprintJumpState sprintJumping;
     public CombatState combatting;
     public AttackingState attacking;
+    public SwimmingState swimming;
 
     [HideInInspector]
     public float gravityValue = -9.81f;
@@ -63,59 +66,63 @@ public class Character : MonoBehaviour {
     public Rigidbody rb;
     [HideInInspector]
     public Vector3 playerVelocity;
+    [HideInInspector]
+    public float waterSurfaceY = 0f; 
     
     
     // public CinemachineFreeLook cinemachineFreeLook; 
     // Start is called before the first frame update
 
-    private void Awake() 
+    private void Awake()
     {
 
-    //     if (photonView.IsMine)
-    //     {
-    //         GetComponent<PlayerInput>().enabled = true;
-    //         this.enabled = true;
-    //     }
-    //     else
-    //     {
-    //         GetComponent<PlayerInput>().enabled = false;
-    //     }
+        //     if (photonView.IsMine)
+        //     {
+        //         GetComponent<PlayerInput>().enabled = true;
+        //         this.enabled = true;
+        //     }
+        //     else
+        //     {
+        //         GetComponent<PlayerInput>().enabled = false;
+        //     }
 
-        
-        
+
+
         controller = GetComponent<CharacterController>();
         // animator = GetComponent<Animator>();
         playerInput = GetComponent<PlayerInput>();
         rb = GetComponent<Rigidbody>();
         // cameraTransform = Camera.main.transform;
+        rb.freezeRotation = true;
 
         // cinemachineFreeLook = PlayerCamera.Instance.cinemachineFreeLook;
 
-    //     SetupCameraSettings();
-        
-        
+        //     SetupCameraSettings();
+
+
 
         movementSM = new StateMachine();
         standing = new StandingState(this, movementSM);
-    //     jumping = new JumpingState(this, movementSM);
-    //     sprinting = new SprintingState(this, movementSM);
-    //     sprintJumping = new SprintJumpState(this, movementSM);
-    //     combatting = new CombatState(this, movementSM);
-    //     attacking = new AttackingState(this, movementSM);
-        movementSM.Initialize(standing);
+        swimming = new SwimmingState(this, movementSM);
+        //     jumping = new JumpingState(this, movementSM);
+        //     sprinting = new SprintingState(this, movementSM);
+        //     sprintJumping = new SprintJumpState(this, movementSM);
+        //     combatting = new CombatState(this, movementSM);
+        //     attacking = new AttackingState(this, movementSM);
+        movementSM.Initialize(swimming);
 
-    //     playerSpeed = playerBaseSpeed;
+        //     playerSpeed = playerBaseSpeed;
 
-        
-    //     //currentWeaponInHand = GetComponentInChildren<WeaponItem>();
 
-    //     normalColliderHeight = controller.height;
-    //     gravityValue *= gravityMultiplier;
-        
+        //     //currentWeaponInHand = GetComponentInChildren<WeaponItem>();
+
+        //     normalColliderHeight = controller.height;
+        //     gravityValue *= gravityMultiplier;
+
     }
     void Start()
     {
-       
+        playerSwimSpeed = playerBaseSwimSpeed;
         
     }
 
