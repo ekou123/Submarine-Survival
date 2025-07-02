@@ -9,6 +9,9 @@ using UnityEngine.InputSystem;
 
 public class Character : MonoBehaviour {
     public static Character Instance {get; private set;}
+
+    [Header("Prefabs")]
+    public GameObject playerUIPrefab;
     
     [Header("PlayerObject")]
     public Transform orientation;
@@ -30,8 +33,8 @@ public class Character : MonoBehaviour {
     public float rotationSpeed = 5f;
     public float crouchColliderHeight = 1.35f;
     
-    [Header("Weapon Config")]
-    public GameObject currentItemInHandPrefab;
+    
+    
 
     [Header("Animation Smoothing")]
     [Range(0,1)]
@@ -67,7 +70,9 @@ public class Character : MonoBehaviour {
     [HideInInspector]
     public Vector3 playerVelocity;
     [HideInInspector]
-    public float waterSurfaceY = 0f; 
+    public float waterSurfaceY = 0f;
+    [HideInInspector]
+    public GameObject playerUIObject;
     
     
     // public CinemachineFreeLook cinemachineFreeLook; 
@@ -109,7 +114,7 @@ public class Character : MonoBehaviour {
         //     sprintJumping = new SprintJumpState(this, movementSM);
         //     combatting = new CombatState(this, movementSM);
         //     attacking = new AttackingState(this, movementSM);
-        movementSM.Initialize(swimming);
+        movementSM.Initialize(standing);
 
         //     playerSpeed = playerBaseSpeed;
 
@@ -123,6 +128,17 @@ public class Character : MonoBehaviour {
     void Start()
     {
         playerSwimSpeed = playerBaseSwimSpeed;
+
+        GameObject UIObject = Instantiate(playerUIPrefab);
+        playerUIObject = UIObject;
+
+        PlayerUI UIPlayer = UIObject.GetComponent<PlayerUI>();
+        if (UIPlayer == null)
+        {
+            Debug.LogError("Could not find UIPlayer on Instantiated UIObject GameObject");
+            return;
+        }
+        UIPlayer.Setup(this);
         
     }
 

@@ -12,6 +12,10 @@ public class SwimmingState : State
     float sensitivity = 10;
     private float pitch = 0f;
     public float pitchClamp = 80f;
+    private float buoyancyStrength = 0.5f;
+    private float dampingStrength = 0.8f;
+    private float dropVelocity;
+    private bool  isDropping;
     public SwimmingState(Character _character, StateMachine _stateMachine) : base(_character, _stateMachine)
     {
         character = _character;
@@ -21,8 +25,11 @@ public class SwimmingState : State
     public override void Enter()
     {
         base.Enter();
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+
+        character.rb.useGravity = false;
+
+        dropVelocity = character.rb.velocity.y;
+        isDropping = dropVelocity < 0f;
     }
 
     public override void HandleInput()
@@ -33,8 +40,10 @@ public class SwimmingState : State
         lookInput = lookAction.ReadValue<Vector2>();
 
         verticalInput = 0f;
-        if (Keyboard.current.eKey.isPressed) verticalInput = 1;
-        if (Keyboard.current.qKey.isPressed) verticalInput = -1f;
+        if (moveAction.triggered)
+        {
+            verticalInput = moveInput.y;
+        }
 
     }
 
@@ -47,48 +56,55 @@ public class SwimmingState : State
     {
         base.PhysicsUpdate();
 
+        // 1) Mouse look (yaw + pitch)
+        Vector2 look  = lookAction.ReadValue<Vector2>();
+        float mouseX  = look.x * sensitivity * Time.deltaTime;
+        float mouseY  = look.y * sensitivity * Time.deltaTime;
+
+        character.transform.Rotate(Vector3.up * mouseX);
+        pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
+        character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+
+        // 2) Read WASD move input
+        Vector2 move2D = moveAction.ReadValue<Vector2>();
+
+        // 3) Build a single moveDir from the pitched camera
         Transform cam = character.cameraTransform;
+        Vector3 camFwd = cam.forward.normalized;
+        Vector3 camRight = cam.right.normalized;
 
-        Vector3 forward = cam.forward;
-        Vector3 right = cam.right;
-        Vector3 up = cam.up;
+        Vector3 moveDir = (camRight * move2D.x + camFwd * move2D.y).normalized;
 
-        Vector3 moveDir = forward * moveInput.y + right * moveInput.x + up * verticalInput;
-        moveDir.Normalize();
+        // 4) Horizontal velocity (X/Z)
+        Vector3 horizontalVel = new Vector3(
+            moveDir.x * character.playerSwimSpeed,
+            0f,
+            moveDir.z * character.playerSwimSpeed
+        );
 
-        Vector3 targetVelocity = moveDir * character.playerSwimSpeed;
-
-        Vector3 futurePosition = character.transform.position + targetVelocity * Time.fixedDeltaTime;
-
-        if (futurePosition.y >= character.waterSurfaceY)
+        // 5) Vertical velocity: first drop + damp, then swim via moveDir.y
+        float finalY;
+        if (isDropping)
         {
-            targetVelocity.y = Mathf.Min(0f, targetVelocity.y);
+            // Dampen the initial drop velocity toward zero
+            dropVelocity = Mathf.Lerp(dropVelocity, 0f, dampingStrength * Time.fixedDeltaTime);
+            finalY = dropVelocity;
+
+            if (dropVelocity >= -0.1f)
+                isDropping = false;
+        }
+        else
+        {
+            // After drop, vertical movement comes from camera-forward pitch
+            finalY = moveDir.y * character.playerSwimSpeed;
         }
 
-        character.rb.velocity = targetVelocity;
+        // 6) Clamp so you can’t poke above the water surface
+        if (character.transform.position.y >= character.waterSurfaceY && finalY > 0f)
+            finalY = 0f;
 
-        float mouseX;
-        float mouseY;
-        if (lookAction.triggered)
-        {
-            Vector2 lookInput = lookAction.ReadValue<Vector2>();
-
-            mouseX = lookInput.x * sensitivity * Time.deltaTime;
-            mouseY = lookInput.y * sensitivity * Time.deltaTime;
-
-            character.transform.Rotate(Vector3.up * mouseX);
-
-            pitch -= mouseY;
-            pitch = Mathf.Clamp(pitch, -pitchClamp, pitchClamp);
-            character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-        }
-
-        
-
-        // if (moveDir.sqrMagnitude > 0.01f)
-        // {
-        //     character.transform.rotation = Quaternion.Slerp(character.transform.rotation, Quaternion.LookRotation(moveDir), Time.deltaTime * character.rotationSpeed);
-        // }
+        // 7) Apply combined velocity
+        character.rb.velocity = horizontalVel + Vector3.up * finalY;
     }
 
     public override void Exit()
