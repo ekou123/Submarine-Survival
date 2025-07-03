@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Unity.Profiling;
 using UnityEngine;
 
@@ -9,21 +10,23 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private Transform slotContainer;
     [SerializeField] private GameObject slotPrefab;
 
+    private Character owner;
     private readonly List<ItemData> items = new List<ItemData>();
     private readonly List<InventorySlot> slots = new List<InventorySlot>();
 
-    public void AddItem(ItemData newItem)
+    private void Start()
     {
-        items.Add(newItem);
-        CreateSlot(newItem);
-    }
+        Character playerCharacter = PlayerUI.Instance.character;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("[InventoryUI] Could not find Player Component in PlayerUI");
+            return;
+        }
 
-    private void CreateSlot(ItemData item)
-    {
-        var go = Instantiate(slotPrefab, slotContainer);
-        var slot = go.GetComponent<InventorySlot>();
-        slot.Setup(item.iconSprite);
+        owner = playerCharacter;
     }
+    
+
 
     public void ClearInventory()
     {
@@ -32,6 +35,29 @@ public class InventoryUI : MonoBehaviour
         {
             Destroy(slot.gameObject);
             slots.Clear();
+        }
+    }
+
+    public void ResetInventoryUI()
+    {
+        Inventory playerInventory = owner.GetComponent<Inventory>();
+        if (playerInventory == null)
+        {
+            Debug.LogError("[InventoryUI] Could not find Inventory Component on Character");
+            return;
+        }
+
+        slots.Clear();
+
+        for (int i = 0; i < playerInventory.maxInventorySlots; i++)
+        {
+            var go = Instantiate(slotPrefab, slotContainer);
+            if (playerInventory.items[i] != null)
+            {
+                ItemData itemToShow = playerInventory.items[i];
+                var slot = go.GetComponent<InventorySlot>();
+                slot.Setup(itemToShow.iconSprite, itemToShow);
+            }
         }
     }
 }

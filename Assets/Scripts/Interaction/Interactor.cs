@@ -131,7 +131,7 @@ public class Interactor : MonoBehaviourPunCallbacks
 
         if (interactableTarget != null)
         {
-            if (Vector3.Distance(transform.position, interactableTarget.transform.position) <= interactableTarget.interactionDistance && photonView.IsMine)
+            if (Vector3.Distance(transform.position, interactableTarget.transform.position) <= interactableTarget.interactionDistance)
             {
                 Character myCharacter = GetComponent<Character>();
                 if (myCharacter == null)

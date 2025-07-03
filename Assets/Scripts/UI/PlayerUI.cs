@@ -55,6 +55,14 @@ public class PlayerUI : MonoBehaviour
         if (open)
         {
             character.playerInput.SwitchCurrentActionMap("UI");
+            InventoryUI inventoryUI = inventoryCanvas.GetComponent<InventoryUI>();
+            if (!inventoryUI)
+            {
+                Debug.LogError("[PlayerUI] Could not find InventoryUI on inventoryCanvas Object");
+                return;
+            }
+
+            inventoryUI.ResetInventoryUI();
         }
         else
         {

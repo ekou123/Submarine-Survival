@@ -73,6 +73,7 @@ public class Character : MonoBehaviour {
     public float waterSurfaceY = 0f;
     [HideInInspector]
     public GameObject playerUIObject;
+
     
     
     // public CinemachineFreeLook cinemachineFreeLook; 

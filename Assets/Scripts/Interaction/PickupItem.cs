@@ -28,14 +28,16 @@ public class PickupItem : Interactable
     {
         base.Interaction();
 
-        Inventory playerInventory = characterInteracting .GetComponent<Inventory>();
         
+        Inventory playerInventory = characterInteracting .GetComponent<Inventory>();
+
         if (playerInventory != null)
         {
+            Debug.Log("Interacting");
             if (playerInventory.AddItem(item))
             {
-                print("I put " + itemName + " in my inventory");   
-                photonView.RPC("RPC_DestroyObject", RpcTarget.All);
+                print("I put " + itemName + " in my inventory");
+                //photonView.RPC("RPC_DestroyObject", RpcTarget.All);
                 //OnPickupAttempt(PhotonNetwork.LocalPlayer.ActorNumber);
             }
             else
@@ -46,6 +48,7 @@ public class PickupItem : Interactable
         else
         {
             Debug.LogWarning("No inventory found on player");
+            return;
         }
 
     }
