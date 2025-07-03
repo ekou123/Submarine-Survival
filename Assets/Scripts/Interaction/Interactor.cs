@@ -27,69 +27,101 @@ public class Interactor : MonoBehaviourPunCallbacks
     
     void Start()
     {
-        cameraTransform = Camera.main.transform;
+        Character character = GetComponent<Character>();
+        cameraTransform = character.cameraTransform;
         layerMask = LayerMask.GetMask("Interactable", "Enemy", "NPC");
 
         interactAction = GetComponent<PlayerInput>().actions["InteractGameplay"];
         interactAction.performed += Interact;        
     }
 
-    
+
 
     // Update is called once per frame
+    // void Update()
+    // {
+    //     direction = cameraTransform.forward;
+    //     origin = cameraTransform.position;
+    //     //RaycastHit hit;
+
+    //     RaycastHit[] hits = Physics.SphereCastAll(cameraTransform.position, interactingRadius, direction, maxInteractingDistance, layerMask);
+
+    //     var seenRoots = new HashSet<GameObject>();
+    //     if (hits.Length > 0)
+    //     {
+    //         RaycastHit closestHit = default;
+    //         float minDist = float.MaxValue;
+    //         Interactable nearestInteractable = null;
+
+    //         foreach (var h in hits)
+    //         {
+    //             GameObject rootObj = h.transform.root.gameObject;
+
+    //             if (seenRoots.Contains(rootObj))
+    //             {
+    //                 continue;
+    //             }
+
+    //             float dist = h.distance;
+    //             if (dist < minDist && h.transform.TryGetComponent<Interactable>(out var possible))
+    //             {
+    //                 minDist = dist;
+    //                 closestHit = h;
+    //                 nearestInteractable = possible;
+    //             }
+    //         }
+
+    //         if (nearestInteractable != null)
+    //         {
+    //             if (interactableTarget != nearestInteractable && interactableTarget != null)
+    //             {
+    //                 interactableTarget.TargetOff();
+    //             }
+
+    //             interactableTarget = nearestInteractable;
+    //             interactableTarget.TargetOn();
+    //             return;
+    //         }
+    //     }
+
+    //     if (interactableTarget != null)
+    //     {
+    //         interactableTarget.TargetOff();
+    //         interactableTarget = null;
+    //     }
+
+    // }
+    
     void Update()
+{
+    var cam = cameraTransform; 
+    Ray ray = new Ray(cam.position, cam.forward);
+    if (Physics.Raycast(ray, out RaycastHit hit, maxInteractingDistance, layerMask))
     {
-        direction = cameraTransform.forward;
-        origin = cameraTransform.position;
-        //RaycastHit hit;
-
-        RaycastHit[] hits = Physics.SphereCastAll(cameraTransform.position, interactingRadius, direction, maxInteractingDistance, layerMask);
-        
-        var seenRoots = new HashSet<GameObject>();
-        if (hits.Length > 0)
+        // grab the Interactable on that collider or any parent
+        var target = hit.collider.GetComponentInParent<Interactable>();
+        if (target != null)
         {
-            RaycastHit closestHit = default;
-            float minDist = float.MaxValue;
-            Interactable nearestInteractable = null;
-
-            foreach (var h in hits)
+            if (interactableTarget != target)
             {
-                GameObject rootObj = h.transform.root.gameObject;
-
-                if (seenRoots.Contains(rootObj))
-                {
-                    continue;
-                }
-
-                float dist = h.distance;
-                if (dist < minDist && h.transform.TryGetComponent<Interactable>(out var possible))
-                {
-                    minDist = dist;
-                    closestHit = h;
-                    nearestInteractable = possible;
-                }
-            }
-
-            if (nearestInteractable != null)
-            {
-                if (interactableTarget != nearestInteractable && interactableTarget != null)
-                {
+                // we’re looking at a new one
+                if (interactableTarget != null)
                     interactableTarget.TargetOff();
-                }
 
-                interactableTarget = nearestInteractable;
-                interactableTarget.TargetOn();
-                return;
+                interactableTarget = target;
+                interactableTarget.TargetOn();   // e.g. shows your “Press E to pick up” text
             }
+            return;
         }
-
-        if (interactableTarget != null)
-        {
-            interactableTarget.TargetOff();
-            interactableTarget = null;
-        }
-        
     }
+
+    // if we fall through, nothing valid under the crosshair
+    if (interactableTarget != null)
+    {
+        interactableTarget.TargetOff();
+        interactableTarget = null;
+    }
+}
 
     private void Interact(InputAction.CallbackContext obj)
     {

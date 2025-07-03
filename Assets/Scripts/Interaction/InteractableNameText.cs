@@ -12,7 +12,14 @@ public class InteractableNameText : MonoBehaviour
     void Start()
     {
         text = GetComponentInChildren<TextMeshProUGUI>();
-        cameraTransform = Camera.main.transform;
+        Character playerCharacter = PlayerUI.Instance.character;
+        if (!playerCharacter)
+        {
+            Debug.LogError("Could not find Character component");
+            return;
+        }
+
+        cameraTransform = playerCharacter.cameraTransform;
         HideText();
     }
 

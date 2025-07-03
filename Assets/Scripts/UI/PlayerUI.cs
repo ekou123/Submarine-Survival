@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class PlayerUI : MonoBehaviour
 {
+    public static PlayerUI Instance { get; private set; }
     [Header("Assign Canvases")]
     public GameObject hudCanvas;
     public GameObject inventoryCanvas;
@@ -16,11 +17,15 @@ public class PlayerUI : MonoBehaviour
     [SerializeField] private InputAction inventoryAction;
 
     [Header("Player")]
-    private Character character;
+    public Character character;
 
     // Start is called before the first frame update
     void Start()
     {
+        if (!Instance)
+        {
+            Instance = this;
+        }
         ShowHUD();
     }
 

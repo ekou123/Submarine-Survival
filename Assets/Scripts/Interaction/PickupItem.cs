@@ -19,7 +19,7 @@ public class PickupItem : Interactable
         rb = GetComponent<Rigidbody>();
         if (rb != null)
         {
-            rb.useGravity = true;
+            // rb.useGravity = true;
             rb.isKinematic = false;
         }
     }
