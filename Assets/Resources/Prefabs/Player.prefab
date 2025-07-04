@@ -237,6 +237,8 @@ GameObject:
   - component: {fileID: -1367078017687426272}
   - component: {fileID: 344529592360861831}
   - component: {fileID: 4300319475915190268}
+  - component: {fileID: 6186077100439854937}
+  - component: {fileID: 8238454446440450968}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -431,3 +433,33 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &6186077100439854937
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4199827753077531106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 541cd8d7c5d336b44b95ff6cede14837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxInteractingDistance: 10
+  interactingRadius: 1
+  interactableTarget: {fileID: 0}
+--- !u!114 &8238454446440450968
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4199827753077531106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e6ec4bc16126b540b4db444fc45ec6e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inventoryUI: {fileID: 0}
+  items: []
+  maxInventorySlots: 34

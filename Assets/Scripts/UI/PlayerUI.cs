@@ -7,6 +7,11 @@ using UnityEngine.UI;
 public class PlayerUI : MonoBehaviour
 {
     public static PlayerUI Instance { get; private set; }
+
+    
+    [Header("Player")]
+    public Character character;
+
     [Header("Assign Canvases")]
     public GameObject hudCanvas;
     public GameObject inventoryCanvas;
@@ -16,8 +21,8 @@ public class PlayerUI : MonoBehaviour
     [Header("Input")]
     [SerializeField] private InputAction inventoryAction;
 
-    [Header("Player")]
-    public Character character;
+    [Header("Prefabs")]
+    [SerializeField] private GameObject inventoryUIObject;
 
     // Start is called before the first frame update
     void Start()
@@ -26,13 +31,28 @@ public class PlayerUI : MonoBehaviour
         {
             Instance = this;
         }
+
+        SetupUI();
         ShowHUD();
+        
     }
 
     private void OnEnable()
     {
         inventoryAction.Enable();
         inventoryAction.performed += OnToggleInventory;
+    }
+
+    private void SetupUI()
+    {
+        inventoryCanvas = Instantiate(inventoryUIObject, this.transform);
+        InventoryUI inventoryUI = inventoryCanvas.GetComponent<InventoryUI>();
+        if (inventoryUI == null)
+        {
+            Debug.LogError("Could not find InventoryUI on Instantiated InventoryCanvas Object");
+            return;
+        }
+        inventoryUI.Setup(character);
     }
 
     public void Setup(Character _character)

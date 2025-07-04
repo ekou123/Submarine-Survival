@@ -9,22 +9,12 @@ public class InventoryUI : MonoBehaviour
     [Header("UI References")]
     [SerializeField] private Transform slotContainer;
     [SerializeField] private GameObject slotPrefab;
-
-    private Character owner;
+    [SerializeField] private Character owner;
+    [SerializeField] private List<InventorySlot> slots = new List<InventorySlot>();
     private readonly List<ItemData> items = new List<ItemData>();
-    private readonly List<InventorySlot> slots = new List<InventorySlot>();
 
-    private void Start()
-    {
-        Character playerCharacter = PlayerUI.Instance.character;
-        if (playerCharacter == null)
-        {
-            Debug.LogError("[InventoryUI] Could not find Player Component in PlayerUI");
-            return;
-        }
 
-        owner = playerCharacter;
-    }
+    
     
 
 
@@ -38,26 +28,22 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    public void Setup(Character character)
+    {
+        owner = character;
+    }
+
     public void ResetInventoryUI()
     {
-        Inventory playerInventory = owner.GetComponent<Inventory>();
-        if (playerInventory == null)
-        {
-            Debug.LogError("[InventoryUI] Could not find Inventory Component on Character");
-            return;
-        }
+        // 1) Hide all
+        foreach (var slot in slots)
+            slot.gameObject.SetActive(false);
 
-        slots.Clear();
-
-        for (int i = 0; i < playerInventory.maxInventorySlots; i++)
+    // 2) Fill & show the ones you need
+        for (int i = 0; i < items.Count && i < slots.Count; i++)
         {
-            var go = Instantiate(slotPrefab, slotContainer);
-            if (playerInventory.items[i] != null)
-            {
-                ItemData itemToShow = playerInventory.items[i];
-                var slot = go.GetComponent<InventorySlot>();
-                slot.Setup(itemToShow.iconSprite, itemToShow);
-            }
+            slots[i].Setup(items[i].iconSprite, items[i]);
+            slots[i].gameObject.SetActive(true);
         }
     }
 }
