@@ -461,5 +461,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inventoryUI: {fileID: 0}
-  items: []
+  items:
+  - {fileID: 11400000, guid: 164436b46300f884a944e9ac150f7881, type: 2}
   maxInventorySlots: 34
