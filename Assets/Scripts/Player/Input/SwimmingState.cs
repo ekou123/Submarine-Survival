@@ -63,13 +63,13 @@ public class SwimmingState : State
 
         character.transform.Rotate(Vector3.up * mouseX);
         pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
-        character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         // 2) Read WASD move input
         Vector2 move2D = moveAction.ReadValue<Vector2>();
 
         // 3) Build a single moveDir from the pitched camera
-        Transform cam = character.cameraTransform;
+        Transform cam = character.playerCamera.transform;
         Vector3 camFwd = cam.forward.normalized;
         Vector3 camRight = cam.right.normalized;
 

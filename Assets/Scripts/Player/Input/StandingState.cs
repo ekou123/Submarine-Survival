@@ -82,7 +82,7 @@ public class StandingState : State
 
             pitch -= mouseY;
             pitch = Mathf.Clamp(pitch, -pitchClamp, pitchClamp);
-            character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+            character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
         }
 
 
@@ -126,8 +126,8 @@ public class StandingState : State
         input = moveAction.ReadValue<Vector2>();
 
         // Get camera-relative directions
-        Vector3 camForward = character.cameraTransform.forward;
-        Vector3 camRight = character.cameraTransform.right;
+        Vector3 camForward = character.playerCamera.transform.forward;
+        Vector3 camRight = character.playerCamera.transform.right;
 
         // Flatten camera direction (ignore vertical)
         camForward.y = 0f;

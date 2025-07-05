@@ -16,7 +16,7 @@ public class Character : MonoBehaviour {
     [Header("PlayerObject")]
     public Transform orientation;
     public Canvas inventoryCanvas;
-    public Transform cameraTransform;
+    public Camera playerCamera;
     public event Action<Character> OnCharacterInitialized;
 
     
@@ -74,8 +74,8 @@ public class Character : MonoBehaviour {
     [HideInInspector]
     public GameObject playerUIObject;
 
-    
-    
+
+
     // public CinemachineFreeLook cinemachineFreeLook; 
     // Start is called before the first frame update
 
@@ -116,15 +116,6 @@ public class Character : MonoBehaviour {
         //     combatting = new CombatState(this, movementSM);
         //     attacking = new AttackingState(this, movementSM);
         movementSM.Initialize(standing);
-
-        //     playerSpeed = playerBaseSpeed;
-
-
-        //     //currentWeaponInHand = GetComponentInChildren<WeaponItem>();
-
-        //     normalColliderHeight = controller.height;
-        //     gravityValue *= gravityMultiplier;
-
     }
     void Start()
     {
@@ -140,7 +131,13 @@ public class Character : MonoBehaviour {
             return;
         }
         UIPlayer.Setup(this);
-        
+
+        playerCamera = Camera.main;
+        if (playerCamera == null)
+        {
+            Debug.LogError("Could not find Main Camera for Player");
+            return;
+        }
     }
 
     // Update is called once per frame

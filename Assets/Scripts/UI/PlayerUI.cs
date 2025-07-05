@@ -17,12 +17,18 @@ public class PlayerUI : MonoBehaviour
     public GameObject inventoryCanvas;
     public GameObject mapCanvas;
     public GameObject pauseCanvas;
+    public GameObject interactableNameCanvas;
 
     [Header("Input")]
     [SerializeField] private InputAction inventoryAction;
 
     [Header("Prefabs")]
     [SerializeField] private GameObject inventoryUIObject;
+
+    private void Awake()
+    {
+        
+    }
 
     // Start is called before the first frame update
     void Start()

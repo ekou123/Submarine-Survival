@@ -9,9 +9,10 @@ public class Interactor : MonoBehaviourPunCallbacks
 {
     [SerializeField] float maxInteractingDistance = 10;
     [SerializeField] float interactingRadius = 1;
+    [SerializeField] Transform cameraTransform;
 
     LayerMask layerMask;
-    Transform cameraTransform;
+    
     InputAction interactAction;
 
     Vector3 origin;
@@ -28,7 +29,6 @@ public class Interactor : MonoBehaviourPunCallbacks
     void Start()
     {
         Character character = GetComponent<Character>();
-        cameraTransform = character.cameraTransform;
         layerMask = LayerMask.GetMask("Interactable", "Enemy", "NPC");
 
         interactAction = GetComponent<PlayerInput>().actions["InteractGameplay"];

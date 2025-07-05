@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4182723972423285044
+--- !u!1 &550801659611038239
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,10 +8,10 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7843819469900528599}
-  - component: {fileID: 4308490182615736298}
-  - component: {fileID: 6895196123461113973}
-  - component: {fileID: 7353393984960179514}
+  - component: {fileID: 5507631795468287316}
+  - component: {fileID: 6031702409212532273}
+  - component: {fileID: 8642213967944105572}
+  - component: {fileID: 3796852211168895681}
   m_Layer: 0
   m_Name: PlayerCamera
   m_TagString: Untagged
@@ -19,13 +19,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7843819469900528599
+--- !u!4 &5507631795468287316
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4182723972423285044}
+  m_GameObject: {fileID: 550801659611038239}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -34,13 +34,13 @@ Transform:
   m_Children: []
   m_Father: {fileID: 388715390714102199}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!20 &4308490182615736298
+--- !u!20 &6031702409212532273
 Camera:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4182723972423285044}
+  m_GameObject: {fileID: 550801659611038239}
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
@@ -85,21 +85,21 @@ Camera:
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
---- !u!81 &6895196123461113973
+--- !u!81 &8642213967944105572
 AudioListener:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4182723972423285044}
+  m_GameObject: {fileID: 550801659611038239}
   m_Enabled: 1
---- !u!114 &7353393984960179514
+--- !u!114 &3796852211168895681
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4182723972423285044}
+  m_GameObject: {fileID: 550801659611038239}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 23c1ce4fb46143f46bc5cb5224c934f6, type: 3}
@@ -237,8 +237,8 @@ GameObject:
   - component: {fileID: -1367078017687426272}
   - component: {fileID: 344529592360861831}
   - component: {fileID: 4300319475915190268}
-  - component: {fileID: 6186077100439854937}
   - component: {fileID: 8238454446440450968}
+  - component: {fileID: 9209895074824755112}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -259,7 +259,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7843819469900528599}
+  - {fileID: 5507631795468287316}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &7080128238930545348
@@ -378,7 +378,7 @@ MonoBehaviour:
     type: 3}
   orientation: {fileID: 388715390714102199}
   inventoryCanvas: {fileID: 0}
-  cameraTransform: {fileID: 7843819469900528599}
+  playerCamera: {fileID: 0}
   playerSpeed: 10
   playerBaseSpeed: 5
   playerBaseSwimSpeed: 3
@@ -433,21 +433,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &6186077100439854937
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4199827753077531106}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 541cd8d7c5d336b44b95ff6cede14837, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxInteractingDistance: 10
-  interactingRadius: 1
-  interactableTarget: {fileID: 0}
 --- !u!114 &8238454446440450968
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -464,3 +449,19 @@ MonoBehaviour:
   items:
   - {fileID: 11400000, guid: 164436b46300f884a944e9ac150f7881, type: 2}
   maxInventorySlots: 34
+--- !u!114 &9209895074824755112
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4199827753077531106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 541cd8d7c5d336b44b95ff6cede14837, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxInteractingDistance: 10
+  interactingRadius: 1
+  cameraTransform: {fileID: 0}
+  interactableTarget: {fileID: 0}

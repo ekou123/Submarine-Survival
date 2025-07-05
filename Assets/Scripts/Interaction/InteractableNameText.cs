@@ -6,20 +6,24 @@ using UnityEngine;
 public class InteractableNameText : MonoBehaviour
 {
     private TextMeshProUGUI text;
-    private Transform cameraTransform;
+    [SerializeField] private Camera playerCamera;
 
     
     void Start()
     {
         text = GetComponentInChildren<TextMeshProUGUI>();
-        Character playerCharacter = PlayerUI.Instance.character;
-        if (!playerCharacter)
+        if (text == null)
         {
-            Debug.LogError("Could not find Character component");
-            return;
+            Debug.LogError("Could not find Text Component on InteractableNameText Object Children");
         }
 
-        cameraTransform = playerCharacter.cameraTransform;
+        playerCamera = Camera.main;
+        if (playerCamera == null)
+        {
+            Debug.LogError("Could not find Main Camera");
+            return;
+        }
+        
         HideText();
     }
 
@@ -64,12 +68,12 @@ public class InteractableNameText : MonoBehaviour
         if (interactable.TryGetComponent(out BoxCollider boxCollider))
         {
             transform.position = interactable.transform.position + Vector3.up * boxCollider.bounds.size.y;
-            transform.LookAt(2 * transform.position - cameraTransform.position);
+            transform.LookAt(2 * transform.position - playerCamera.transform.position);
         }
         else if (interactable.TryGetComponent(out CapsuleCollider capsuleCollider))
         {
             transform.position = interactable.transform.position + Vector3.up * capsuleCollider.height;
-            transform.LookAt(2 * transform.position - cameraTransform.position);
+            transform.LookAt(2 * transform.position - playerCamera.transform.position);
         }
         else
         {
