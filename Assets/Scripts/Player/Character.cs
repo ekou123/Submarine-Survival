@@ -8,19 +8,20 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-public class Character : MonoBehaviourPunCallbacks {
-    public static Character Instance {get; private set;}
+public class Character : MonoBehaviourPunCallbacks, IPunObservable
+{
+    public static Character Instance { get; private set; }
 
     [Header("Prefabs")]
     public GameObject playerUIPrefab;
-    
+
     [Header("PlayerObject")]
     public Transform orientation;
     public Canvas inventoryCanvas;
     public Camera playerCamera;
     public event Action<Character> OnCharacterInitialized;
 
-    
+
 
     [Header("Controls")]
     public float playerSpeed;
@@ -33,18 +34,18 @@ public class Character : MonoBehaviourPunCallbacks {
     public float gravityMultiplier = 2;
     public float rotationSpeed = 5f;
     public float crouchColliderHeight = 1.35f;
-    
-    
-    
+
+
+
 
     [Header("Animation Smoothing")]
-    [Range(0,1)]
+    [Range(0, 1)]
     public float speedDampTime = 0.1f;
-    [Range(0,1)]
+    [Range(0, 1)]
     public float velocityDampTime = 0.9f;
-    [Range(0,1)]
+    [Range(0, 1)]
     public float rotationDampTime = 0.2f;
-    [Range(0,1)]
+    [Range(0, 1)]
     public float airControl = 0.5f;
 
     public StateMachine movementSM;
@@ -85,6 +86,9 @@ public class Character : MonoBehaviourPunCallbacks {
 
         if (!photonView.IsMine)
         {
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            
             this.enabled = false;
             GetComponent<PlayerInput>().enabled = false;
             GetComponent<Interactor>().enabled = false;
@@ -144,14 +148,32 @@ public class Character : MonoBehaviourPunCallbacks {
     // Update is called once per frame
     void Update()
     {
-        
+
         movementSM.currentState.HandleInput();
 
-        movementSM.currentState.LogicUpdate();        
+        movementSM.currentState.LogicUpdate();
     }
 
-    private void FixedUpdate() 
+    private void FixedUpdate()
     {
         movementSM.currentState.PhysicsUpdate();
     }
+    
+    public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
+{
+    if (stream.IsWriting)
+    {
+        // I own this object: send my position, rotation, and velocity
+        stream.SendNext(transform.position);
+        stream.SendNext(transform.rotation);
+        stream.SendNext(rb.velocity);
+    }
+    else if (rb != null)
+    {
+        // remote instance: receive and apply
+        transform.position = (Vector3)stream.ReceiveNext();
+        transform.rotation = (Quaternion)stream.ReceiveNext();
+        rb.velocity        = (Vector3)stream.ReceiveNext();
+    }
+}
 }
