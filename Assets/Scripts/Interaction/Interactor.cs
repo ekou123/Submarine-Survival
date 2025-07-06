@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using Photon.Pun;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -28,6 +25,8 @@ public class Interactor : MonoBehaviourPunCallbacks
     
     void Start()
     {
+        if (!photonView.IsMine) return;
+        
         Character character = GetComponent<Character>();
         layerMask = LayerMask.GetMask("Interactable", "Enemy", "NPC");
 
@@ -94,6 +93,9 @@ public class Interactor : MonoBehaviourPunCallbacks
     
     void Update()
 {
+        if (!photonView.IsMine)
+            return;
+
     var cam = cameraTransform; 
     Ray ray = new Ray(cam.position, cam.forward);
     if (Physics.Raycast(ray, out RaycastHit hit, maxInteractingDistance, layerMask))
@@ -125,7 +127,7 @@ public class Interactor : MonoBehaviourPunCallbacks
 
     private void Interact(InputAction.CallbackContext obj)
     {
-        if (Time.time - lastInteractionTime < interactCooldown) return;
+        if (Time.time - lastInteractionTime < interactCooldown || !photonView.IsMine) return;
 
         lastInteractionTime = Time.time;
 

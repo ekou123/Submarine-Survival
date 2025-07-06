@@ -2,12 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
+using Photon.Pun;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 
-public class Character : MonoBehaviour {
+public class Character : MonoBehaviourPunCallbacks {
     public static Character Instance {get; private set;}
 
     [Header("Prefabs")]
@@ -82,16 +83,16 @@ public class Character : MonoBehaviour {
     private void Awake()
     {
 
-        //     if (photonView.IsMine)
-        //     {
-        //         GetComponent<PlayerInput>().enabled = true;
-        //         this.enabled = true;
-        //     }
-        //     else
-        //     {
-        //         GetComponent<PlayerInput>().enabled = false;
-        //     }
+        if (!photonView.IsMine)
+        {
+            this.enabled = false;
+            GetComponent<PlayerInput>().enabled = false;
+            GetComponent<Interactor>().enabled = false;
+            GetComponent<Inventory>().enabled = false;
+            Destroy(playerCamera.gameObject);
 
+            return;
+        }
 
 
         controller = GetComponent<CharacterController>();

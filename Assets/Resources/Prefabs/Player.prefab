@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 3796852211168895681}
   m_Layer: 0
   m_Name: PlayerCamera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -239,6 +239,7 @@ GameObject:
   - component: {fileID: 4300319475915190268}
   - component: {fileID: 8238454446440450968}
   - component: {fileID: 9209895074824755112}
+  - component: {fileID: -8196153671390277699}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -378,7 +379,7 @@ MonoBehaviour:
     type: 3}
   orientation: {fileID: 388715390714102199}
   inventoryCanvas: {fileID: 0}
-  playerCamera: {fileID: 0}
+  playerCamera: {fileID: 6031702409212532273}
   playerSpeed: 10
   playerBaseSpeed: 5
   playerBaseSwimSpeed: 3
@@ -463,5 +464,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxInteractingDistance: 10
   interactingRadius: 1
-  cameraTransform: {fileID: 0}
+  cameraTransform: {fileID: 5507631795468287316}
   interactableTarget: {fileID: 0}
+--- !u!114 &-8196153671390277699
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4199827753077531106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ObservedComponentsFoldoutOpen: 1
+  Group: 0
+  prefixField: -1
+  Synchronization: 3
+  OwnershipTransfer: 0
+  observableSearch: 2
+  ObservedComponents: []
+  sceneViewId: 0
+  InstantiationId: 0
+  isRuntimeInstantiated: 0
