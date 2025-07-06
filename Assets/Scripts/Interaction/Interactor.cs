@@ -26,7 +26,7 @@ public class Interactor : MonoBehaviourPunCallbacks
     void Start()
     {
         if (!photonView.IsMine) return;
-        
+
         Character character = GetComponent<Character>();
         layerMask = LayerMask.GetMask("Interactable", "Enemy", "NPC");
 
@@ -159,6 +159,7 @@ public class Interactor : MonoBehaviourPunCallbacks
 
     private void OnDestroy() 
     {
+        if (!photonView.IsMine) return;
         interactAction.performed -= Interact;        
     }
 }
