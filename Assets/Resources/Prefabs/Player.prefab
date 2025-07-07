@@ -377,7 +377,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerUIPrefab: {fileID: 2362745808602494820, guid: 27d043f7acee524429ec35e4c12244f4,
     type: 3}
-  orientation: {fileID: 388715390714102199}
+  playerTransform: {fileID: 388715390714102199}
   inventoryCanvas: {fileID: 0}
   playerCamera: {fileID: 6031702409212532273}
   playerSpeed: 10

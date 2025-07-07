@@ -16,7 +16,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     public GameObject playerUIPrefab;
 
     [Header("PlayerObject")]
-    public Transform orientation;
+    public Transform playerTransform;
     public Canvas inventoryCanvas;
     public Camera playerCamera;
     public event Action<Character> OnCharacterInitialized;
@@ -75,6 +75,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     public float waterSurfaceY = 0f;
     [HideInInspector]
     public GameObject playerUIObject;
+    
 
 
 
@@ -83,12 +84,13 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody>();
 
         if (!photonView.IsMine)
         {
             rb.isKinematic = true;
             rb.useGravity = false;
-            
+
             this.enabled = false;
             GetComponent<PlayerInput>().enabled = false;
             GetComponent<Interactor>().enabled = false;
@@ -102,7 +104,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
         controller = GetComponent<CharacterController>();
         // animator = GetComponent<Animator>();
         playerInput = GetComponent<PlayerInput>();
-        rb = GetComponent<Rigidbody>();
+
         // cameraTransform = Camera.main.transform;
         rb.freezeRotation = true;
 

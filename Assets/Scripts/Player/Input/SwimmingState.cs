@@ -15,7 +15,7 @@ public class SwimmingState : State
     private float buoyancyStrength = 0.5f;
     private float dampingStrength = 0.8f;
     private float dropVelocity;
-    private bool  isDropping;
+    private bool isDropping;
     public SwimmingState(Character _character, StateMachine _stateMachine) : base(_character, _stateMachine)
     {
         character = _character;
@@ -35,16 +35,21 @@ public class SwimmingState : State
     public override void HandleInput()
     {
         base.HandleInput();
-
-        moveInput = moveAction.ReadValue<Vector2>();
         lookInput = lookAction.ReadValue<Vector2>();
 
-        verticalInput = 0f;
-        if (moveAction.triggered)
-        {
-            verticalInput = moveInput.y;
-        }
+        float mouseX = lookInput.x * sensitivity * Time.deltaTime;
+        float mouseY = lookInput.y * sensitivity * Time.deltaTime;
 
+        // 1) Yaw around world-up (turn left/right)
+        character.transform.Rotate(Vector3.up, mouseX, Space.World);
+
+        // 2) Pitch around the character's local right
+        character.transform.Rotate(character.transform.right, -mouseY, Space.World);
+
+        pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
+        character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+
+        moveInput = moveAction.ReadValue<Vector2>();
     }
 
     public override void LogicUpdate()
@@ -56,59 +61,42 @@ public class SwimmingState : State
     {
         base.PhysicsUpdate();
 
-        // 1) Mouse look (yaw + pitch)
-        Vector2 look  = lookAction.ReadValue<Vector2>();
-        float mouseX  = look.x * sensitivity * Time.deltaTime;
-        float mouseY  = look.y * sensitivity * Time.deltaTime;
-
-        character.transform.Rotate(Vector3.up * mouseX);
-        pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
-        character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
-
-        // 2) Read WASD move input
-        Vector2 move2D = moveAction.ReadValue<Vector2>();
-
-        // 3) Build a single moveDir from the pitched camera
+        // 3) Build move direction from camera forward/right
         Transform cam = character.playerCamera.transform;
         Vector3 camFwd = cam.forward.normalized;
         Vector3 camRight = cam.right.normalized;
+        
+        Vector3 moveDir = (camRight * moveInput.x + camFwd * moveInput.y).normalized;
 
-        Vector3 moveDir = (camRight * move2D.x + camFwd * move2D.y).normalized;
-
-        // 4) Horizontal velocity (X/Z)
+        // 4) Horizontal velocity
         Vector3 horizontalVel = new Vector3(
             moveDir.x * character.playerSwimSpeed,
             0f,
             moveDir.z * character.playerSwimSpeed
         );
 
-        // 5) Vertical velocity: first drop + damp, then swim via moveDir.y
-        float finalY;
-        if (isDropping)
-        {
-            // Dampen the initial drop velocity toward zero
-            dropVelocity = Mathf.Lerp(dropVelocity, 0f, dampingStrength * Time.fixedDeltaTime);
-            finalY = dropVelocity;
+        // 5) Vertical drop-then-swim logic (unchanged)
+        float finalY = isDropping
+            ? DampenDropVelocity()
+            : moveDir.y * character.playerSwimSpeed;
 
-            if (dropVelocity >= -0.1f)
-                isDropping = false;
-        }
-        else
-        {
-            // After drop, vertical movement comes from camera-forward pitch
-            finalY = moveDir.y * character.playerSwimSpeed;
-        }
-
-        // 6) Clamp so you can’t poke above the water surface
+        // 6) Clamp at surface
         if (character.transform.position.y >= character.waterSurfaceY && finalY > 0f)
             finalY = 0f;
 
-        // 7) Apply combined velocity
+        // 7) Apply
         character.rb.velocity = horizontalVel + Vector3.up * finalY;
     }
 
     public override void Exit()
     {
         base.Exit();
+    }
+    
+    private float DampenDropVelocity()
+    {
+        dropVelocity = Mathf.Lerp(dropVelocity, 0f, dampingStrength * Time.fixedDeltaTime);
+        if (dropVelocity >= -0.1f) isDropping = false;
+        return dropVelocity;
     }
 }
