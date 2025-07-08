@@ -43,6 +43,8 @@ public class StandingState : State
         // grounded = character.controller.isGrounded;
         gravityValue = character.gravityValue;
 
+        character.rb.useGravity = true;
+
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;

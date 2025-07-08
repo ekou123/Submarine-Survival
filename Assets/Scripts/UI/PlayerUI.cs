@@ -39,7 +39,7 @@ public class PlayerUI : MonoBehaviour
         }
 
         SetupUI();
-        ShowHUD();
+        // ShowHUD();
         
     }
 
@@ -73,10 +73,7 @@ public class PlayerUI : MonoBehaviour
     {
         bool open = !inventoryCanvas.activeSelf;
         inventoryCanvas.SetActive(open);
-        hudCanvas.SetActive(!open);
-
-        foreach (var map in character.playerInput.actions.actionMaps)
-            Debug.Log($"Available map: '{map.name}'");
+        // hudCanvas.SetActive(!open);
 
         if (open)
         {

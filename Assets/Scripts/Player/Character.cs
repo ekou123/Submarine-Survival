@@ -17,6 +17,8 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
 
     [Header("PlayerObject")]
     public Transform playerTransform;
+    public Transform modelPivot;
+    public Transform cameraPivot;
     public Canvas inventoryCanvas;
     public Camera playerCamera;
     public event Action<Character> OnCharacterInitialized;

@@ -33,7 +33,6 @@ public class PickupItem : Interactable
 
         if (playerInventory != null)
         {
-            Debug.Log("Interacting");
             if (playerInventory.AddItem(item))
             {
                 print("I put " + itemName + " in my inventory");

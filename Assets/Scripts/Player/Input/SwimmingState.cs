@@ -35,18 +35,23 @@ public class SwimmingState : State
     public override void HandleInput()
     {
         base.HandleInput();
-        lookInput = lookAction.ReadValue<Vector2>();
+        Vector2 look = lookAction.ReadValue<Vector2>();
+        float mouseX = look.x * sensitivity * Time.deltaTime;
+        float mouseY = look.y * sensitivity * Time.deltaTime;
 
-        float mouseX = lookInput.x * sensitivity * Time.deltaTime;
-        float mouseY = lookInput.y * sensitivity * Time.deltaTime;
-
-        // 1) Yaw around world-up (turn left/right)
+        // — YAW on the player root (so camera & physics face into the turn) —
         character.transform.Rotate(Vector3.up, mouseX, Space.World);
 
-        // 2) Pitch around the character's local right
-        character.transform.Rotate(character.transform.right, -mouseY, Space.World);
+        // — INVERSE‐YAW on the visual model so it “leans back” or “lags behind” —
+        if (character.modelPivot != null)
+            character.modelPivot.Rotate(Vector3.up, -mouseX, Space.Self);
 
-        pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
+        // (Optionally do the same for pitch/roll:)
+        //  e.g. character.modelPivot.Rotate(character.modelPivot.right, mouseY, Space.Self);
+
+        // … your existing pitch on the camera pivot …
+        float pitchDelta = mouseY;
+        pitch = Mathf.Clamp(pitch - pitchDelta, -pitchClamp, pitchClamp);
         character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         moveInput = moveAction.ReadValue<Vector2>();
@@ -62,7 +67,7 @@ public class SwimmingState : State
         base.PhysicsUpdate();
 
         // 3) Build move direction from camera forward/right
-        Transform cam = character.playerCamera.transform;
+        Transform cam = character.cameraPivot; // ← use pivot, not the camera itself
         Vector3 camFwd = cam.forward.normalized;
         Vector3 camRight = cam.right.normalized;
         
