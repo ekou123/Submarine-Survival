@@ -18,11 +18,15 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     [Header("PlayerObject")]
     public Transform playerTransform;
     public Transform modelPivot;
+    public Transform model;
     public Transform cameraPivot;
     public Canvas inventoryCanvas;
     public Camera playerCamera;
     public event Action<Character> OnCharacterInitialized;
 
+    [Header("Swim Banking")] 
+    public float maxBankAngle = 20f;    // how far (degrees) the model can tilt
+    public float bankSmoothTime = 0.1f;  // how quickly it eases in/out
 
 
     [Header("Controls")]
@@ -124,7 +128,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
         //     sprintJumping = new SprintJumpState(this, movementSM);
         //     combatting = new CombatState(this, movementSM);
         //     attacking = new AttackingState(this, movementSM);
-        movementSM.Initialize(standing);
+        movementSM.Initialize(swimming);
     }
     void Start()
     {

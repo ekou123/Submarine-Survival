@@ -12,6 +12,7 @@ public class SwimmingState : State
     float sensitivity = 10;
     private float pitch = 0f;
     public float pitchClamp = 80f;
+    private float bankVelocity = 0f;
     private float buoyancyStrength = 0.5f;
     private float dampingStrength = 0.8f;
     private float dropVelocity;
@@ -26,6 +27,7 @@ public class SwimmingState : State
     {
         base.Enter();
 
+        character.rb.isKinematic = false;  
         character.rb.useGravity = false;
 
         dropVelocity = character.rb.velocity.y;
@@ -67,10 +69,12 @@ public class SwimmingState : State
         base.PhysicsUpdate();
 
         // 3) Build move direction from camera forward/right
-        Transform cam = character.cameraPivot; // ← use pivot, not the camera itself
+        Transform cam = character.cameraPivot != null
+        ? character.cameraPivot
+        : character.playerCamera.transform;
         Vector3 camFwd = cam.forward.normalized;
         Vector3 camRight = cam.right.normalized;
-        
+
         Vector3 moveDir = (camRight * moveInput.x + camFwd * moveInput.y).normalized;
 
         // 4) Horizontal velocity
@@ -89,8 +93,38 @@ public class SwimmingState : State
         if (character.transform.position.y >= character.waterSurfaceY && finalY > 0f)
             finalY = 0f;
 
-        // 7) Apply
-        character.rb.velocity = horizontalVel + Vector3.up * finalY;
+        Vector3 worldVel = horizontalVel + Vector3.up * finalY;
+
+        // —————— BANKING: tilt the visual model into turn ——————
+        // Convert that velocity into local space so x is “sideways”
+        Vector3 localVel = character.transform.InverseTransformDirection(worldVel);
+
+        // Target roll: proportional to sideways speed
+        float targetBank = -localVel.x
+            / character.playerSwimSpeed
+            * character.maxBankAngle;
+
+        // Unwrap current Z-angle to ±180
+        float currentZ = character.modelPivot
+        .localEulerAngles.z;
+        if (currentZ > 180f) currentZ -= 360f;
+
+        // Smoothly move toward the target bank
+        float smoothedZ = Mathf.SmoothDamp(
+            currentZ,
+            targetBank,
+            ref bankVelocity,
+            character.bankSmoothTime,
+            Mathf.Infinity,
+            Time.fixedDeltaTime
+        );
+
+        Debug.Log("World Velocity: " + worldVel);
+        // Apply the roll on the model pivot
+        character.modelPivot.localRotation = Quaternion.Euler(0f, 0f, smoothedZ);
+        // 6) Finally, apply the velocity to the Rigidbody
+        character.rb.velocity = worldVel;
+        
     }
 
     public override void Exit()

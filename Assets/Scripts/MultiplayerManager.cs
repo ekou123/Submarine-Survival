@@ -83,7 +83,7 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
         {
             Debug.Log($"Instantiating Player Character for {PhotonNetwork.LocalPlayer.ActorNumber}");
 
-            GameObject playerCharacterObject = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "Player"), new Vector3(0, 1f, 0), Quaternion.identity);
+            GameObject playerCharacterObject = PhotonNetwork.Instantiate(Path.Combine("Prefabs", "Player"), new Vector3(0, -5f, 0), Quaternion.identity);
             Character playerCharacter = playerCharacterObject.GetComponent<Character>();            
             
             

@@ -368,9 +368,12 @@ MonoBehaviour:
     type: 3}
   playerTransform: {fileID: 7441017289377740098}
   modelPivot: {fileID: 325945516558267785}
+  model: {fileID: 3338684617542873542}
   cameraPivot: {fileID: 6917113655629466391}
   inventoryCanvas: {fileID: 0}
   playerCamera: {fileID: 9125380123632898381}
+  maxBankAngle: 20
+  bankSmoothTime: 0.1
   playerSpeed: 0
   playerBaseSpeed: 5
   playerBaseSwimSpeed: 3
