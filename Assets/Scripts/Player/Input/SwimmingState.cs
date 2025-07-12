@@ -68,33 +68,34 @@ public class SwimmingState : State
     {
         base.PhysicsUpdate();
 
-        // 3) Build move direction from camera forward/right
-        Transform cam = character.cameraPivot != null
-        ? character.cameraPivot
-        : character.playerCamera.transform;
-        Vector3 camFwd = cam.forward.normalized;
-        Vector3 camRight = cam.right.normalized;
+        var cam    = character.playerCamera.transform;
+        Vector3 rawDir   = cam.right * moveInput.x + cam.forward * moveInput.y;
+        Vector3 swimDir  = rawDir;
+        if (rawDir.sqrMagnitude > 1f) swimDir = rawDir.normalized;
 
-        Vector3 moveDir = (camRight * moveInput.x + camFwd * moveInput.y).normalized;
-
-        // 4) Horizontal velocity
+        // 2) Compose horizontal and vertical speeds
         Vector3 horizontalVel = new Vector3(
-            moveDir.x * character.playerSwimSpeed,
-            0f,
-            moveDir.z * character.playerSwimSpeed
+        swimDir.x * character.playerSwimSpeed,
+        0f,
+        swimDir.z * character.playerSwimSpeed
         );
 
-        // 5) Vertical drop-then-swim logic (unchanged)
+        // 3) vertical from drop or swimDir
         float finalY = isDropping
             ? DampenDropVelocity()
-            : moveDir.y * character.playerSwimSpeed;
+            : swimDir.y * character.playerSwimSpeed;
 
-        // 6) Clamp at surface
+        // 4) optional explicit up/down keys
+        if (verticalInput != 0f)
+            finalY = verticalInput * character.playerSwimSpeed;
+
+        // 5) clamp at surface
         if (character.transform.position.y >= character.waterSurfaceY && finalY > 0f)
             finalY = 0f;
 
         Vector3 worldVel = horizontalVel + Vector3.up * finalY;
 
+        // 6) bank & camera‐logic (unchanged)
         // —————— BANKING: tilt the visual model into turn ——————
         // Convert that velocity into local space so x is “sideways”
         Vector3 localVel = character.transform.InverseTransformDirection(worldVel);
@@ -118,12 +119,15 @@ public class SwimmingState : State
             Mathf.Infinity,
             Time.fixedDeltaTime
         );
-
-        Debug.Log("World Velocity: " + worldVel);
         // Apply the roll on the model pivot
         character.modelPivot.localRotation = Quaternion.Euler(0f, 0f, smoothedZ);
+
+        // 7) move the rigidbody
+        character.rb.velocity = horizontalVel + Vector3.up * finalY;
+
+        
         // 6) Finally, apply the velocity to the Rigidbody
-        character.rb.velocity = worldVel;
+        // character.rb.velocity = worldVel;
         
     }
 
