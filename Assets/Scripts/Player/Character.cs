@@ -25,7 +25,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     public event Action<Character> OnCharacterInitialized;
 
     [Header("Swim Banking")] 
-    public float maxBankAngle = 20f;    // how far (degrees) the model can tilt
+    public float maxBankAngle = 90f;    // how far (degrees) the model can tilt
     public float bankSmoothTime = 0.1f;  // how quickly it eases in/out
 
 
@@ -91,13 +91,14 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        rb.interpolation = RigidbodyInterpolation.Interpolate;
 
         if (!photonView.IsMine)
         {
             rb.isKinematic = true;
             rb.useGravity = false;
 
-            this.enabled = false;
+
             GetComponent<PlayerInput>().enabled = false;
             GetComponent<Interactor>().enabled = false;
             GetComponent<Inventory>().enabled = false;
@@ -132,6 +133,11 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     }
     void Start()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         playerSwimSpeed = playerBaseSwimSpeed;
 
         GameObject UIObject = Instantiate(playerUIPrefab);
@@ -156,6 +162,10 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
     // Update is called once per frame
     void Update()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
 
         movementSM.currentState.HandleInput();
 
@@ -164,24 +174,35 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
 
     private void FixedUpdate()
     {
+        if (!photonView.IsMine)
+        {
+            return;
+        }
+
         movementSM.currentState.PhysicsUpdate();
     }
     
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
 {
-    if (stream.IsWriting)
-    {
-        // I own this object: send my position, rotation, and velocity
-        stream.SendNext(transform.position);
-        stream.SendNext(transform.rotation);
-        stream.SendNext(rb.velocity);
-    }
-    else if (rb != null)
-    {
-        // remote instance: receive and apply
-        transform.position = (Vector3)stream.ReceiveNext();
-        transform.rotation = (Quaternion)stream.ReceiveNext();
-        rb.velocity        = (Vector3)stream.ReceiveNext();
-    }
+        if (stream.IsWriting)
+        {
+            // I own this object: send my position, rotation, and velocity
+            stream.SendNext(transform.position);
+            stream.SendNext(modelPivot.rotation);
+            stream.SendNext(rb.velocity);
+        }
+        else if (rb != null)
+        {
+            // remote instance: receive and apply
+            transform.position = (Vector3)stream.ReceiveNext();
+            Quaternion targetRotation = (Quaternion)stream.ReceiveNext();
+            rb.velocity = (Vector3)stream.ReceiveNext();
+
+            if (!photonView.IsMine)
+            {
+                modelPivot.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 10f);
+            }
+
+        }
 }
 }

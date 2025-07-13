@@ -385,7 +385,7 @@ MonoBehaviour:
   cameraPivot: {fileID: 6917113655629466391}
   inventoryCanvas: {fileID: 0}
   playerCamera: {fileID: 9125380123632898381}
-  maxBankAngle: 20
+  maxBankAngle: 90
   bankSmoothTime: 0.1
   playerSpeed: 0
   playerBaseSpeed: 5

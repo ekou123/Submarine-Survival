@@ -57,6 +57,8 @@ public class SwimmingState : State
         character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         moveInput = moveAction.ReadValue<Vector2>();
+        if (moveInput.sqrMagnitude < 0.01f)
+            moveInput = Vector2.zero;
     }
 
     public override void LogicUpdate()
@@ -68,10 +70,16 @@ public class SwimmingState : State
     {
         base.PhysicsUpdate();
 
-        var cam    = character.playerCamera.transform;
-        Vector3 rawDir   = cam.right * moveInput.x + cam.forward * moveInput.y;
-        Vector3 swimDir  = rawDir;
+        var cam = character.playerCamera.transform;
+        Vector3 rawDir = cam.right * moveInput.x + cam.forward * moveInput.y;
+        Vector3 swimDir = rawDir;
         if (rawDir.sqrMagnitude > 1f) swimDir = rawDir.normalized;
+
+        if (moveInput == Vector2.zero && Mathf.Abs(verticalInput) < 0.01f)
+        {
+            character.rb.velocity = Vector3.zero;
+            return;
+        }
 
         // 2) Compose horizontal and vertical speeds
         Vector3 horizontalVel = new Vector3(
@@ -95,40 +103,48 @@ public class SwimmingState : State
 
         Vector3 worldVel = horizontalVel + Vector3.up * finalY;
 
-        // 6) bank & camera‐logic (unchanged)
-        // —————— BANKING: tilt the visual model into turn ——————
-        // Convert that velocity into local space so x is “sideways”
-        Vector3 localVel = character.transform.InverseTransformDirection(worldVel);
+        Vector3 flatDir = new Vector3(worldVel.x, 0f, worldVel.z);
 
-        // Target roll: proportional to sideways speed
-        float targetBank = -localVel.x
-            / character.playerSwimSpeed
-            * character.maxBankAngle;
-
-        // Unwrap current Z-angle to ±180
-        float currentZ = character.modelPivot
-        .localEulerAngles.z;
-        if (currentZ > 180f) currentZ -= 360f;
-
-        // Smoothly move toward the target bank
-        float smoothedZ = Mathf.SmoothDamp(
-            currentZ,
-            targetBank,
-            ref bankVelocity,
-            character.bankSmoothTime,
-            Mathf.Infinity,
-            Time.fixedDeltaTime
+        if (flatDir.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(flatDir, Vector3.up);
+            character.modelPivot.rotation = Quaternion.Slerp(
+            character.modelPivot.rotation,
+            targetRotation,
+            Time.fixedDeltaTime * character.rotationSpeed
         );
-        // Apply the roll on the model pivot
-        character.modelPivot.localRotation = Quaternion.Euler(0f, 0f, smoothedZ);
 
-        // 7) move the rigidbody
-        character.rb.velocity = horizontalVel + Vector3.up * finalY;
+            // 6) bank & camera‐logic (unchanged)
+            // —————— BANKING: tilt the visual model into turn ——————
+            // Convert that velocity into local space so x is “sideways”
+            Vector3 localVel = character.transform.InverseTransformDirection(worldVel);
 
-        
-        // 6) Finally, apply the velocity to the Rigidbody
-        // character.rb.velocity = worldVel;
-        
+            // Target roll: proportional to sideways speed
+            float targetBank = -localVel.x
+                / character.playerSwimSpeed
+                * character.maxBankAngle;
+
+            // Unwrap current Z-angle to ±180
+            float currentZ = character.modelPivot
+            .localEulerAngles.z;
+            if (currentZ > 180f) currentZ -= 360f;
+
+            // Smoothly move toward the target bank
+            float smoothedZ = Mathf.SmoothDamp(
+                currentZ,
+                targetBank,
+                ref bankVelocity,
+                character.bankSmoothTime,
+                Mathf.Infinity,
+                Time.fixedDeltaTime
+            );
+            // Apply the roll on the model pivot
+            character.modelPivot.localRotation = Quaternion.Euler(0f, 0f, smoothedZ);
+
+            // 7) move the rigidbody
+            character.rb.velocity = horizontalVel + Vector3.up * finalY;
+
+        }
     }
 
     public override void Exit()
