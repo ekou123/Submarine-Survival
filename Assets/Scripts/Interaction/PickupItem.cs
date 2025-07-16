@@ -36,7 +36,7 @@ public class PickupItem : Interactable
             if (playerInventory.AddItem(item))
             {
                 print("I put " + itemName + " in my inventory");
-                //photonView.RPC("RPC_DestroyObject", RpcTarget.All);
+                photonView.RPC("RPC_DestroyObject", RpcTarget.All);
                 //OnPickupAttempt(PhotonNetwork.LocalPlayer.ActorNumber);
             }
             else
