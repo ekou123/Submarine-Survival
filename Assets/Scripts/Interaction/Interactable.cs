@@ -24,9 +24,16 @@ public class Interactable : MonoBehaviourPunCallbacks
         
     }
 
+    public void SetNameTextHandler(InteractableNameText nameText)
+    {
+        interactableNameText = nameText;
+    }
+
     public void TargetOn()
     {
+
         if (interactableNameText == null) return;
+        Debug.Log("Deez NUts");
         interactableNameText.ShowText(this);
         interactableNameText.SetInteractableNamePosition(this);
     }

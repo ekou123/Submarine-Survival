@@ -104,15 +104,19 @@ public class Interactor : MonoBehaviourPunCallbacks
         var target = hit.collider.GetComponentInParent<Interactable>();
         if (target != null)
         {
+                
             if (interactableTarget != target)
-            {
-                // we’re looking at a new one
-                if (interactableTarget != null)
-                    interactableTarget.TargetOff();
+                {
+                    // we’re looking at a new one
+                    if (interactableTarget != null)
+                        interactableTarget.TargetOff();
 
-                interactableTarget = target;
-                interactableTarget.TargetOn();   // e.g. shows your “Press E to pick up” text
-            }
+                    interactableTarget = target;
+                    
+                    InteractableNameText nameText = FindObjectOfType<InteractableNameText>();
+                    interactableTarget.SetNameTextHandler(nameText);
+                    interactableTarget.TargetOn();
+                }
             return;
         }
     }
