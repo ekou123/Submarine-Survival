@@ -13,23 +13,27 @@ public class Interactable : MonoBehaviourPunCallbacks
 
     public Character characterInteracting;
 
-    InteractableNameText interactableNameText;
-    public GameObject interactableNameCanvas;
+    [SerializeField] InteractableNameText interactableNameText;
+    // public GameObject interactableNameCanvas;
 
 
     public virtual void Start()
     {
-        interactableNameCanvas = GameObject.FindGameObjectWithTag("Canvas");
-        if (interactableNameCanvas != null)
-        {
-            interactableNameText = interactableNameCanvas.GetComponentInChildren<InteractableNameText>();
-        }
+        if (interactableNameText == null)
+            interactableNameText = FindObjectOfType<InteractableNameText>();
         
+    }
+
+    public void SetNameTextHandler(InteractableNameText nameText)
+    {
+        interactableNameText = nameText;
     }
 
     public void TargetOn()
     {
+
         if (interactableNameText == null) return;
+        Debug.Log("Deez NUts");
         interactableNameText.ShowText(this);
         interactableNameText.SetInteractableNamePosition(this);
     }
@@ -55,12 +59,6 @@ public class Interactable : MonoBehaviourPunCallbacks
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, interactionDistance);
-    }
-
-    public void SetCanvasReference(GameObject canvas)
-    {
-        interactableNameCanvas = canvas;
-        interactableNameText = canvas.GetComponentInChildren<InteractableNameText>();
     }
 
     private void OnDestroy() 

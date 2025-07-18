@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1953649977027339947
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7875761757982610679}
+  - component: {fileID: 2151449678451117691}
+  - component: {fileID: 7163600287306073975}
+  m_Layer: 0
+  m_Name: MultiplayerManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7875761757982610679
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953649977027339947}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 777.65656, y: 690.6721, z: 585.9035}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2151449678451117691
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953649977027339947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96c9ce608b3031b4bb12ec716a2453d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerUIPrefab: {fileID: 0}
+  inventoryPrefab: {fileID: 0}
+  playerManagerPrefab: {fileID: 0}
+  playerCameraPrefab: {fileID: 0}
+--- !u!114 &7163600287306073975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1953649977027339947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bd751e010c946e459ae43a2aaf4d173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  biomePresets:
+  - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
+  worldWidth: 100
+  worldDepth: 100
+  tileSpacing: 2
+  heightMultiplier: 3
+  temperatureScale: 0.01
+  moistureScale: 0.01
+  seed: 1337

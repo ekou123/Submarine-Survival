@@ -7,12 +7,20 @@ public class Inventory : MonoBehaviour
     [Header("UI")]
     [SerializeField] private InventoryUI inventoryUI;
 
-    private readonly List<ItemData> items = new List<ItemData>();
+    [SerializeField]
+    public List<ItemData> items = new List<ItemData>();
+    
+    [HideInInspector]
+    public int maxInventorySlots = 34;
+
+    private void Start()
+    {
+    }
 
     public bool AddItem(ItemData item)
     {
         items.Add(item);
-        inventoryUI.AddItem(item);
+        
         return true;
     }
 

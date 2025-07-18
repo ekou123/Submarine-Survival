@@ -12,10 +12,11 @@ public class SwimmingState : State
     float sensitivity = 10;
     private float pitch = 0f;
     public float pitchClamp = 80f;
+    private float bankVelocity = 0f;
     private float buoyancyStrength = 0.5f;
     private float dampingStrength = 0.8f;
     private float dropVelocity;
-    private bool  isDropping;
+    private bool isDropping;
     public SwimmingState(Character _character, StateMachine _stateMachine) : base(_character, _stateMachine)
     {
         character = _character;
@@ -26,6 +27,7 @@ public class SwimmingState : State
     {
         base.Enter();
 
+        character.rb.isKinematic = false;  
         character.rb.useGravity = false;
 
         dropVelocity = character.rb.velocity.y;
@@ -35,16 +37,28 @@ public class SwimmingState : State
     public override void HandleInput()
     {
         base.HandleInput();
+        Vector2 look = lookAction.ReadValue<Vector2>();
+        float mouseX = look.x * sensitivity * Time.deltaTime;
+        float mouseY = look.y * sensitivity * Time.deltaTime;
+
+        // — YAW on the player root (so camera & physics face into the turn) —
+        character.transform.Rotate(Vector3.up, mouseX, Space.World);
+
+        // — INVERSE‐YAW on the visual model so it “leans back” or “lags behind” —
+        if (character.modelPivot != null)
+            character.modelPivot.Rotate(Vector3.up, -mouseX, Space.Self);
+
+        // (Optionally do the same for pitch/roll:)
+        //  e.g. character.modelPivot.Rotate(character.modelPivot.right, mouseY, Space.Self);
+
+        // … your existing pitch on the camera pivot …
+        float pitchDelta = mouseY;
+        pitch = Mathf.Clamp(pitch - pitchDelta, -pitchClamp, pitchClamp);
+        character.playerCamera.transform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         moveInput = moveAction.ReadValue<Vector2>();
-        lookInput = lookAction.ReadValue<Vector2>();
-
-        verticalInput = 0f;
-        if (moveAction.triggered)
-        {
-            verticalInput = moveInput.y;
-        }
-
+        if (moveInput.sqrMagnitude < 0.01f)
+            moveInput = Vector2.zero;
     }
 
     public override void LogicUpdate()
@@ -56,59 +70,92 @@ public class SwimmingState : State
     {
         base.PhysicsUpdate();
 
-        // 1) Mouse look (yaw + pitch)
-        Vector2 look  = lookAction.ReadValue<Vector2>();
-        float mouseX  = look.x * sensitivity * Time.deltaTime;
-        float mouseY  = look.y * sensitivity * Time.deltaTime;
+        var cam = character.playerCamera.transform;
+        Vector3 rawDir = cam.right * moveInput.x + cam.forward * moveInput.y;
+        Vector3 swimDir = rawDir;
+        if (rawDir.sqrMagnitude > 1f) swimDir = rawDir.normalized;
 
-        character.transform.Rotate(Vector3.up * mouseX);
-        pitch = Mathf.Clamp(pitch - mouseY, -pitchClamp, pitchClamp);
-        character.cameraTransform.localRotation = Quaternion.Euler(pitch, 0f, 0f);
+        if (moveInput == Vector2.zero && Mathf.Abs(verticalInput) < 0.01f)
+        {
+            character.rb.velocity = Vector3.zero;
+            return;
+        }
 
-        // 2) Read WASD move input
-        Vector2 move2D = moveAction.ReadValue<Vector2>();
-
-        // 3) Build a single moveDir from the pitched camera
-        Transform cam = character.cameraTransform;
-        Vector3 camFwd = cam.forward.normalized;
-        Vector3 camRight = cam.right.normalized;
-
-        Vector3 moveDir = (camRight * move2D.x + camFwd * move2D.y).normalized;
-
-        // 4) Horizontal velocity (X/Z)
+        // 2) Compose horizontal and vertical speeds
         Vector3 horizontalVel = new Vector3(
-            moveDir.x * character.playerSwimSpeed,
-            0f,
-            moveDir.z * character.playerSwimSpeed
+        swimDir.x * character.playerSwimSpeed,
+        0f,
+        swimDir.z * character.playerSwimSpeed
         );
 
-        // 5) Vertical velocity: first drop + damp, then swim via moveDir.y
-        float finalY;
-        if (isDropping)
-        {
-            // Dampen the initial drop velocity toward zero
-            dropVelocity = Mathf.Lerp(dropVelocity, 0f, dampingStrength * Time.fixedDeltaTime);
-            finalY = dropVelocity;
+        // 3) vertical from drop or swimDir
+        float finalY = isDropping
+            ? DampenDropVelocity()
+            : swimDir.y * character.playerSwimSpeed;
 
-            if (dropVelocity >= -0.1f)
-                isDropping = false;
-        }
-        else
-        {
-            // After drop, vertical movement comes from camera-forward pitch
-            finalY = moveDir.y * character.playerSwimSpeed;
-        }
+        // 4) optional explicit up/down keys
+        if (verticalInput != 0f)
+            finalY = verticalInput * character.playerSwimSpeed;
 
-        // 6) Clamp so you can’t poke above the water surface
+        // 5) clamp at surface
         if (character.transform.position.y >= character.waterSurfaceY && finalY > 0f)
             finalY = 0f;
 
-        // 7) Apply combined velocity
-        character.rb.velocity = horizontalVel + Vector3.up * finalY;
+        Vector3 worldVel = horizontalVel + Vector3.up * finalY;
+
+        Vector3 flatDir = new Vector3(worldVel.x, 0f, worldVel.z);
+
+        if (flatDir.sqrMagnitude > 0.01f)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(flatDir, Vector3.up);
+            character.modelPivot.rotation = Quaternion.Slerp(
+            character.modelPivot.rotation,
+            targetRotation,
+            Time.fixedDeltaTime * character.rotationSpeed
+        );
+
+            // 6) bank & camera‐logic (unchanged)
+            // —————— BANKING: tilt the visual model into turn ——————
+            // Convert that velocity into local space so x is “sideways”
+            Vector3 localVel = character.transform.InverseTransformDirection(worldVel);
+
+            // Target roll: proportional to sideways speed
+            float targetBank = -localVel.x
+                / character.playerSwimSpeed
+                * character.maxBankAngle;
+
+            // Unwrap current Z-angle to ±180
+            float currentZ = character.modelPivot
+            .localEulerAngles.z;
+            if (currentZ > 180f) currentZ -= 360f;
+
+            // Smoothly move toward the target bank
+            float smoothedZ = Mathf.SmoothDamp(
+                currentZ,
+                targetBank,
+                ref bankVelocity,
+                character.bankSmoothTime,
+                Mathf.Infinity,
+                Time.fixedDeltaTime
+            );
+            // Apply the roll on the model pivot
+            character.modelPivot.localRotation = Quaternion.Euler(0f, 0f, smoothedZ);
+
+            // 7) move the rigidbody
+            character.rb.velocity = horizontalVel + Vector3.up * finalY;
+
+        }
     }
 
     public override void Exit()
     {
         base.Exit();
+    }
+    
+    private float DampenDropVelocity()
+    {
+        dropVelocity = Mathf.Lerp(dropVelocity, 0f, dampingStrength * Time.fixedDeltaTime);
+        if (dropVelocity >= -0.1f) isDropping = false;
+        return dropVelocity;
     }
 }

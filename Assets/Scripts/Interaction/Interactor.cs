@@ -1,7 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
 using Photon.Pun;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -9,9 +6,10 @@ public class Interactor : MonoBehaviourPunCallbacks
 {
     [SerializeField] float maxInteractingDistance = 10;
     [SerializeField] float interactingRadius = 1;
+    [SerializeField] Transform cameraTransform;
 
     LayerMask layerMask;
-    Transform cameraTransform;
+    
     InputAction interactAction;
 
     Vector3 origin;
@@ -27,8 +25,9 @@ public class Interactor : MonoBehaviourPunCallbacks
     
     void Start()
     {
+        if (!photonView.IsMine) return;
+
         Character character = GetComponent<Character>();
-        cameraTransform = character.cameraTransform;
         layerMask = LayerMask.GetMask("Interactable", "Enemy", "NPC");
 
         interactAction = GetComponent<PlayerInput>().actions["InteractGameplay"];
@@ -94,6 +93,9 @@ public class Interactor : MonoBehaviourPunCallbacks
     
     void Update()
 {
+        if (!photonView.IsMine)
+            return;
+
     var cam = cameraTransform; 
     Ray ray = new Ray(cam.position, cam.forward);
     if (Physics.Raycast(ray, out RaycastHit hit, maxInteractingDistance, layerMask))
@@ -102,15 +104,19 @@ public class Interactor : MonoBehaviourPunCallbacks
         var target = hit.collider.GetComponentInParent<Interactable>();
         if (target != null)
         {
+                
             if (interactableTarget != target)
-            {
-                // we’re looking at a new one
-                if (interactableTarget != null)
-                    interactableTarget.TargetOff();
+                {
+                    // we’re looking at a new one
+                    if (interactableTarget != null)
+                        interactableTarget.TargetOff();
 
-                interactableTarget = target;
-                interactableTarget.TargetOn();   // e.g. shows your “Press E to pick up” text
-            }
+                    interactableTarget = target;
+                    
+                    InteractableNameText nameText = FindObjectOfType<InteractableNameText>();
+                    interactableTarget.SetNameTextHandler(nameText);
+                    interactableTarget.TargetOn();
+                }
             return;
         }
     }
@@ -125,13 +131,13 @@ public class Interactor : MonoBehaviourPunCallbacks
 
     private void Interact(InputAction.CallbackContext obj)
     {
-        if (Time.time - lastInteractionTime < interactCooldown) return;
+        if (Time.time - lastInteractionTime < interactCooldown || !photonView.IsMine) return;
 
         lastInteractionTime = Time.time;
 
         if (interactableTarget != null)
         {
-            if (Vector3.Distance(transform.position, interactableTarget.transform.position) <= interactableTarget.interactionDistance && photonView.IsMine)
+            if (Vector3.Distance(transform.position, interactableTarget.transform.position) <= interactableTarget.interactionDistance)
             {
                 Character myCharacter = GetComponent<Character>();
                 if (myCharacter == null)
@@ -157,6 +163,7 @@ public class Interactor : MonoBehaviourPunCallbacks
 
     private void OnDestroy() 
     {
+        if (!photonView.IsMine) return;
         interactAction.performed -= Interact;        
     }
 }
