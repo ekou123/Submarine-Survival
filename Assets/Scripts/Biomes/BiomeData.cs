@@ -15,6 +15,10 @@ public class BiomeData : ScriptableObject
 
     public Color debugColor;
 
+    [Header("Depth Range")]
+    public float minDepth;
+    public float maxDepth;
+
     [Header("Biome Prefabs")]
     public GameObject[] terrainPrefabs;
 }
