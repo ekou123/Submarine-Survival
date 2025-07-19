@@ -16,5 +16,7 @@ MonoBehaviour:
   temperature: 0
   moisture: 0
   debugColor: {r: 0, g: 0, b: 0, a: 0}
+  minDepth: 0
+  maxDepth: -50
   terrainPrefabs:
-  - {fileID: 2848770471605309196, guid: 5de2492bbe3fc494094fd5a67c014c50, type: 3}
+  - {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b, type: 3}

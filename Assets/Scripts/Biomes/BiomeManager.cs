@@ -9,8 +9,8 @@ public class BiomeManager : MonoBehaviour
     public List<BiomeData> biomePresets;
 
     [Header("Noise Settings")]
-    public int worldWidth = 30;
-    public int worldDepth = 30;
+    public int worldWidth = 200;
+    public int worldDepth = 1000;
     public int verticalLayers = 4;
     public float layerHeight = 20f; // How tall each vertical biome chunk is
     public float tileSpacing = 2f;
