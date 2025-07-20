@@ -5,7 +5,8 @@ using UnityEngine;
 public enum BiomeType
 {
     Shallow,
-    Deep
+    Deep,
+    Test,
 }
 
 public class Biome

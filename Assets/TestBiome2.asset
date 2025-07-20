@@ -10,13 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52072fe18caa90842b6888f7ad0bc98b, type: 3}
-  m_Name: TestBiome
+  m_Name: TestBiome2
   m_EditorClassIdentifier: 
   biomeType: 0
   temperature: 0
   moisture: 0
   debugColor: {r: 0, g: 0, b: 0, a: 0}
   minDepth: 0
-  maxDepth: -1000
-  terrainPrefabs:
-  - {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b, type: 3}
+  maxDepth: 0
+  terrainPrefabs: []

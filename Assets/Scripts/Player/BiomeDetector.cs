@@ -5,25 +5,39 @@ using UnityEngine;
 public class BiomeDetector : MonoBehaviour
 {
     public BiomeType currentBiome;
-    public BiomeType defaultBiome = BiomeType.Shallow;
+    public BiomeType defaultBiome = BiomeType.Test;
 
-    void OnTriggerEnter(Collider other)
+    public event System.Action<BiomeType> OnBiomeChanged;
+
+    private void OnTriggerEnter(Collider other)
     {
-        BiomeVolume biome = other.GetComponent<BiomeVolume>();
-        if (biome != null)
+        Debug.Log("Deez");
+        if (other.TryGetComponent<BiomeVolume>(out var vol))
         {
-            currentBiome = biome.biomeType;
-            Debug.Log($"Entered Biome: {currentBiome}");
+
+            if (currentBiome != vol.biomeType)
+            {
+
+                currentBiome = vol.biomeType;
+                OnBiomeChanged?.Invoke(currentBiome);
+            }
         }
     }
 
+    public void ChangeBiome(BiomeType biomeType)
+    {
+         OnBiomeChanged?.Invoke(biomeType);
+    }
+
+    
     private void OnTriggerExit(Collider other)
     {
-        BiomeVolume biome = other.GetComponent<BiomeVolume>();
-        if (biome != null && currentBiome == biome.biomeType)
+        Debug.Log("Nuts");
+        if (other.TryGetComponent<BiomeVolume>(out var vol) &&
+            currentBiome == vol.biomeType)
         {
             currentBiome = defaultBiome;
-            Debug.Log($"Exited biome, reverting to {currentBiome}");
+            OnBiomeChanged?.Invoke(currentBiome);
         }
     }
 }

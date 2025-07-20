@@ -7,10 +7,33 @@ public class BiomeVolume : MonoBehaviour
 {
     public BiomeType biomeType;
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.TryGetComponent<BiomeDetector>(out var det))
+        {
+            if (det.currentBiome != biomeType)
+            {
+                Debug.Log("Deez");
+                det.currentBiome = biomeType;
+                det.ChangeBiome(biomeType);
+            }
+        }
+    }
+
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.TryGetComponent<BiomeDetector>(out var det))
+        {
+            Debug.Log("Nuts");
+            det.currentBiome = det.defaultBiome;
+            det.ChangeBiome(det.currentBiome);
+        }
+    }
     private void Reset()
     {
         var box = GetComponent<BoxCollider>();
-        box.isTrigger = true;   
+        box.isTrigger = true;
     }
 
     private void OnDrawGizmos()

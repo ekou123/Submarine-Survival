@@ -313,7 +313,6 @@ GameObject:
   - component: {fileID: 7592786350933134073}
   - component: {fileID: 7617086603526697999}
   - component: {fileID: 3760399035906461825}
-  - component: {fileID: 3969296427965253263}
   - component: {fileID: 3423919786786362644}
   m_Layer: 0
   m_Name: Player
@@ -473,20 +472,6 @@ MonoBehaviour:
   interactingRadius: 1
   cameraTransform: {fileID: 3657147588548537830}
   interactableTarget: {fileID: 0}
---- !u!114 &3969296427965253263
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2752280250483134406}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e0b11e5067fd2104c80dbc6b976a94dd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentBiome: 0
-  defaultBiome: 0
 --- !u!114 &3423919786786362644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -521,7 +506,8 @@ GameObject:
   - component: {fileID: 3338684617542873542}
   - component: {fileID: 8007652627237312070}
   - component: {fileID: 6808304073143862387}
-  - component: {fileID: 7129239437947279681}
+  - component: {fileID: 2824805590018157399}
+  - component: {fileID: 8651968529793380002}
   m_Layer: 0
   m_Name: Model
   m_TagString: Untagged
@@ -594,7 +580,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &7129239437947279681
+--- !u!136 &2824805590018157399
 CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -617,3 +603,17 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &8651968529793380002
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5326188838628239071}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0b11e5067fd2104c80dbc6b976a94dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentBiome: 2
+  defaultBiome: 2

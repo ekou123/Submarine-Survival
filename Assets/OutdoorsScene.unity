@@ -524,6 +524,7 @@ GameObject:
   m_Component:
   - component: {fileID: 450157223}
   - component: {fileID: 450157222}
+  - component: {fileID: 450157224}
   m_Layer: 0
   m_Name: MultiplayerManager
   m_TagString: Untagged
@@ -562,6 +563,32 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &450157224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 450157221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4bd751e010c946e459ae43a2aaf4d173, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  biomePresets:
+  - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
+  worldWidth: 1000
+  worldDepth: 1000
+  verticalLayers: 1000
+  layerHeight: 200
+  tileSpacing: 1
+  heightMultiplier: 3
+  temperatureScale: 0.01
+  moistureScale: 0.01
+  seed: 1337
+  biomeVolumePrefab: {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b,
+    type: 3}
+  volumeSize: {x: 100, y: 100, z: 100}
 --- !u!1 &500111702
 GameObject:
   m_ObjectHideFlags: 0
