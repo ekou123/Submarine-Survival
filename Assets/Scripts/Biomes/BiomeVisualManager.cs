@@ -52,11 +52,8 @@ public class BiomeVisualManager : MonoBehaviour
 
     void ApplyProfile(BiomeType newBiome)
     {
-        Debug.Log("Ass");
         if (!_lookup.TryGetValue(newBiome, out var prof))
             return;
-
-        Debug.Log("Omega");
 
         // --- 1) Fog & ambient ---
         RenderSettings.fogColor   = prof.fogColor;
