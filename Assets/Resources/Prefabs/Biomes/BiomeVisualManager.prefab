@@ -44,7 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c6e6a49276a37a4d9afb42c729b15ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profiles: []
+  profiles:
+  - {fileID: 11400000, guid: fc67f420f46a28043979ca844fca0c9b, type: 2}
   globalVolume: {fileID: 0}
   directionalLight: {fileID: 0}
   oceanRenderer: {fileID: 0}

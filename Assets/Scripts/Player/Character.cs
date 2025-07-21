@@ -14,6 +14,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
 
     [Header("Prefabs")]
     public GameObject playerUIPrefab;
+    public GameObject biomeVisualManagerPrefab;
 
     [Header("PlayerObject")]
     public Transform playerTransform;
@@ -143,13 +144,23 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
         GameObject UIObject = Instantiate(playerUIPrefab);
         playerUIObject = UIObject;
 
+        GameObject biomeVisualManagerObject = Instantiate(biomeVisualManagerPrefab);
+
         PlayerUI UIPlayer = UIObject.GetComponent<PlayerUI>();
         if (UIPlayer == null)
         {
             Debug.LogError("Could not find UIPlayer on Instantiated UIObject GameObject");
             return;
         }
+
+        BiomeVisualManager bvm = biomeVisualManagerObject.GetComponent<BiomeVisualManager>();
+        if (bvm == null)
+        {
+            Debug.LogError("Could not find BiomeVisualManager on Instantied Character Object");
+        }
+
         UIPlayer.Setup(this);
+        bvm.Setup(this);
 
         playerCamera = Camera.main;
         if (playerCamera == null)

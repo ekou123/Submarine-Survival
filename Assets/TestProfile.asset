@@ -13,10 +13,10 @@ MonoBehaviour:
   m_Name: TestProfile
   m_EditorClassIdentifier: 
   biomeType: 0
-  fogColor: {r: 1, g: 1, b: 1, a: 1}
+  fogColor: {r: 0.12647463, g: 0.08187969, b: 0.754717, a: 1}
   fogDensity: 0.02
-  ambientColor: {r: 1, g: 1, b: 1, a: 1}
+  ambientColor: {r: 0.4575021, g: 0.23553754, b: 0.745283, a: 1}
   waterMaterialOverride: {fileID: 0}
-  waterSurfaceColor: {r: 1, g: 1, b: 1, a: 1}
-  waterUnderColor: {r: 1, g: 1, b: 1, a: 1}
-  postProcessProfile: {fileID: 0}
+  waterSurfaceColor: {r: 0, g: 0.011921406, b: 1, a: 1}
+  waterUnderColor: {r: 0.44775718, g: 0.4526254, b: 0.735849, a: 1}
+  postProcessProfile: {fileID: 11400000, guid: 20c4a8f24d911c649ad5e42076d9fa8a, type: 2}

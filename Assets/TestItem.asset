@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 655eb2c69607b9645bd48d6e608af887, type: 3}
   m_Name: TestItem
   m_EditorClassIdentifier: 
-  itemName: 
-  iconSprite: {fileID: 0}
+  itemName: Book Armour
+  iconSprite: {fileID: 21300000, guid: 3f68dea32da805c48846d68fae1f85e7, type: 3}
   item: {fileID: 0}

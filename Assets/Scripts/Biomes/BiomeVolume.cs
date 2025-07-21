@@ -13,7 +13,6 @@ public class BiomeVolume : MonoBehaviour
         {
             if (det.currentBiome != biomeType)
             {
-                Debug.Log("Deez");
                 det.currentBiome = biomeType;
                 det.ChangeBiome(biomeType);
             }
@@ -25,7 +24,6 @@ public class BiomeVolume : MonoBehaviour
     {
         if (other.TryGetComponent<BiomeDetector>(out var det))
         {
-            Debug.Log("Nuts");
             det.currentBiome = det.defaultBiome;
             det.ChangeBiome(det.currentBiome);
         }
