@@ -1,64 +1,88 @@
-using System.Collections;
-using System.Collections.Generic;
-using Unity.Collections;
-using Unity.Jobs;
 using UnityEngine;
-
+using System.Collections;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class SeafloorGenerator : MonoBehaviour
 {
-    public int    resolution = 50;
+    public int    resolution = 100;
     public float  scale      = 1f;
     public float  heightMul  = 10f;
     public float  noiseFreq  = 0.1f;
-    // Start is called before the first frame update
+    public Vector2 noiseOffset;
+    public int    chunkX, chunkZ;
+
+    private MeshFilter _mf;
+
     void Start()
     {
-        BuildMesh();
+        var renderer = GetComponent<MeshRenderer>();
+        var mat      = renderer.material;
+        mat.SetFloat("_NoiseScale", noiseFreq);
+        mat.SetFloat("_HeightMul",  heightMul);
+        mat.SetVector("_NoiseOffset", new Vector4(
+        chunkX * (resolution-1) * scale,
+        chunkZ * (resolution-1) * scale,
+        0,0
+    ));
+    
+    StartCoroutine(BuildMeshCoroutine());
     }
 
-    private void BuildMesh()
+    IEnumerator BuildMeshCoroutine()
     {
-        int vertsPerLine = resolution;
-        Vector3[] verts   = new Vector3[vertsPerLine*vertsPerLine];
-        Vector2[] uvs     = new Vector2[verts.Length];
-        int[]     tris    = new int[(vertsPerLine-1)*(vertsPerLine-1)*6];
+        int N = resolution;
+        int vertCount = N * N;
+        Vector3[] verts = new Vector3[vertCount];
+        Vector2[] uvs   = new Vector2[vertCount];
+        int triCount = (N-1)*(N-1)*6;
+        int[] tris = new int[triCount];
 
-        // 1) generate vertices + UVs
-        for(int z=0; z<vertsPerLine; z++)
-        for(int x=0; x<vertsPerLine; x++)
+        float baseX = chunkX * (N-1) * scale;
+        float baseZ = chunkZ * (N-1) * scale;
+
+        // 1) Vert rows
+        for (int z = 0; z < N; z++)
         {
-            int i = x + z*vertsPerLine;
-            float height = Mathf.PerlinNoise(x*noiseFreq, z*noiseFreq) * heightMul;
-            verts[i] = new Vector3(x*scale, -height, z*scale);
-            uvs[i]   = new Vector2((float)x/vertsPerLine, (float)z/vertsPerLine);
+            for (int x = 0; x < N; x++)
+            {
+                int i = x + z * N;
+                float worldX = baseX + x * scale;
+                float worldZ = baseZ + z * scale;
+                float h = Mathf.PerlinNoise((worldX + noiseOffset.x) * noiseFreq,
+                                            (worldZ + noiseOffset.y) * noiseFreq)
+                          * heightMul;
+                verts[i] = new Vector3(worldX, -h, worldZ);
+                uvs[i]   = new Vector2(x / (float)(N-1), z / (float)(N-1));
+            }
+            // yield each row so the main thread can render
+            yield return null;
         }
 
-        // 2) generate triangles
-        int t=0;
-        for(int z=0; z<vertsPerLine-1; z++)
-        for(int x=0; x<vertsPerLine-1; x++)
+        // 2) Tri rows
+        int t = 0;
+        for (int z = 0; z < N - 1; z++)
         {
-            int i = x + z*vertsPerLine;
-
-            tris[t++] = i;
-            tris[t++] = i + vertsPerLine;
-            tris[t++] = i + 1;
-
-            tris[t++] = i + 1;
-            tris[t++] = i + vertsPerLine;
-            tris[t++] = i + vertsPerLine + 1;
+            for (int x = 0; x < N - 1; x++)
+            {
+                int i = x + z * N;
+                tris[t++] = i;
+                tris[t++] = i + N;
+                tris[t++] = i + 1;
+                tris[t++] = i + 1;
+                tris[t++] = i + N;
+                tris[t++] = i + N + 1;
+            }
+            yield return null;
         }
 
-        // 3) assign to mesh
-        Mesh mesh = new Mesh();
-        mesh.vertices  = verts;
-        mesh.triangles = tris;
-        mesh.uv        = uvs;
-        mesh.RecalculateNormals();
+        // 3) Build mesh
+        Mesh m = new Mesh();
+        m.indexFormat = vertCount > 65000 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
+        m.vertices  = verts;
+        m.triangles = tris;
+        m.uv        = uvs;
+        m.RecalculateNormals();
 
-        var mf = GetComponent<MeshFilter>();
-        mf.mesh = mesh;
+        _mf.mesh = m;
     }
 }

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 918006384239628453}
   - component: {fileID: 5209532153610430061}
   - component: {fileID: 1367400767797637314}
+  - component: {fileID: -6833436131713873076}
   m_Layer: 0
   m_Name: BiomeVolume
   m_TagString: Untagged
@@ -67,3 +68,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   biomeType: 0
+--- !u!114 &-6833436131713873076
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2596270570022300684}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69197034266f4ab41ba2d0a1fdb01be0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chunkPrefab: {fileID: 7198243866805972110, guid: 241fc619a2b3d594686c8ffa0570ca56,
+    type: 3}
+  noiseFreq: 0
+  heightMul: 0
+  chunkSize: 10
+  mapWidthInChunks: 1
+  mapDepthInChunks: 1
