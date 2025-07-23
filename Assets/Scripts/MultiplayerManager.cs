@@ -8,15 +8,11 @@ using UnityEngine.SceneManagement;
 public class MultiplayerManager : MonoBehaviourPunCallbacks
 {
     public MultiplayerManager Instance {get; private set;}
-
-    public GameObject playerUIPrefab;
-    public GameObject inventoryPrefab;
-    public GameObject playerManagerPrefab;
-    public GameObject playerCameraPrefab;
+    public GameObject terrainGeneratorPrefab;
     
 
 
-    private void Awake() 
+    private void Awake()
     {
         if (Instance)
         {
@@ -41,8 +37,12 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
     }
     void Start()
     {
-        PhotonNetwork.AutomaticallySyncScene = true;
-        
+        PhotonNetwork.AutomaticallySyncScene = true;        
+    }
+
+    private void SetupTerrainGenerator()
+    {
+        Instantiate(terrainGeneratorPrefab);
     }
 
     public override void OnJoinedRoom()
