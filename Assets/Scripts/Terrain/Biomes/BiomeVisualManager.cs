@@ -11,6 +11,8 @@ public class BiomeVisualManager : MonoBehaviour
     public Light directionalLight;
     public BiomeDetector detector;
     public WaterSurface _waterSurface;
+
+    Character _character;
     Dictionary<BiomeType, BiomeVisualProfile> _lookup;
 
 
@@ -18,35 +20,35 @@ public class BiomeVisualManager : MonoBehaviour
     {
         
     }
+    
+    private void Start() {
+        StartCoroutine(InitWhenCharacterExists());
+    }
 
-    public void Setup(Character character)
+    IEnumerator InitWhenCharacterExists()
     {
-        // 1) Find the local BiomeDetector on the player
-        detector = character.GetComponentInChildren<BiomeDetector>();
+        // spinlock until Character.Local is non‐null
+        while (Character.Local == null)
+            yield return null;
+
+        _character = Character.Local;
+        detector   = _character.GetComponentInChildren<BiomeDetector>();
         if (detector == null)
         {
-            Debug.LogError("Could not find BiomeDetector on Character!");
-            return;
+            Debug.LogError("No BiomeDetector on local Character!");
+            yield break;
         }
 
-        // 2) Auto‐find your global Volume and Directional Light
-        globalVolume    = FindObjectOfType<Volume>();
+        // now do the rest of your Setup logic:
+        globalVolume     = FindObjectOfType<Volume>();
         directionalLight = GameObject.FindWithTag("Sun")?.GetComponent<Light>();
+        _waterSurface    = FindObjectOfType<WaterSurface>();
 
-        // 3) Find the HDRP WaterSurface in the Scene
-        _waterSurface = FindObjectOfType<WaterSurface>();
-        if (_waterSurface == null)
-        {
-            Debug.LogError("No HDRP WaterSurface found in scene!");
-            return;
-        }
-
-        // 4) Build lookup table
-        _lookup = new Dictionary<BiomeType, BiomeVisualProfile>();
-        foreach (var p in profiles)
+        // build lookup table
+        _lookup = new Dictionary<BiomeType,BiomeVisualProfile>();
+        foreach (var p in profiles) 
             _lookup[p.biomeType] = p;
 
-        // 5) Subscribe to biome‐change events
         detector.OnBiomeChanged += ApplyProfile;
     }
 

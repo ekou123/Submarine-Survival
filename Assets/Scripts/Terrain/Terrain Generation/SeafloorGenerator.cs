@@ -13,17 +13,26 @@ public class SeafloorGenerator : MonoBehaviour
 
     private MeshFilter _mf;
 
+    private void Awake() {
+        _mf = GetComponent<MeshFilter>();
+    }
+
     void Start()
     {
         var renderer = GetComponent<MeshRenderer>();
         var mat      = renderer.material;
         mat.SetFloat("_NoiseScale", noiseFreq);
         mat.SetFloat("_HeightMul",  heightMul);
-        mat.SetVector("_NoiseOffset", new Vector4(
-        chunkX * (resolution-1) * scale,
-        chunkZ * (resolution-1) * scale,
-        0,0
-    ));
+        mat.SetVector
+        ("_NoiseOffset",
+        new Vector4(
+        chunkX * (resolution - 1) * scale,
+        chunkZ * (resolution - 1) * scale,
+        0, 0));
+
+        
+
+
     
     StartCoroutine(BuildMeshCoroutine());
     }
@@ -32,29 +41,28 @@ public class SeafloorGenerator : MonoBehaviour
     {
         int N = resolution;
         int vertCount = N * N;
-        Vector3[] verts = new Vector3[vertCount];
-        Vector2[] uvs   = new Vector2[vertCount];
-        int triCount = (N-1)*(N-1)*6;
-        int[] tris = new int[triCount];
+        var verts = new Vector3[vertCount];
+        var uvs = new Vector2[vertCount];
+        var tris = new int[(N - 1) * (N - 1) * 6];
 
-        float baseX = chunkX * (N-1) * scale;
-        float baseZ = chunkZ * (N-1) * scale;
-
-        // 1) Vert rows
+        // 1) build vertices & UVs in LOCAL space
         for (int z = 0; z < N; z++)
         {
             for (int x = 0; x < N; x++)
             {
                 int i = x + z * N;
-                float worldX = baseX + x * scale;
-                float worldZ = baseZ + z * scale;
-                float h = Mathf.PerlinNoise((worldX + noiseOffset.x) * noiseFreq,
-                                            (worldZ + noiseOffset.y) * noiseFreq)
-                          * heightMul;
-                verts[i] = new Vector3(worldX, -h, worldZ);
-                uvs[i]   = new Vector2(x / (float)(N-1), z / (float)(N-1));
+                Vector3 localPos = new Vector3(x * scale, 0, z * scale);
+
+                // WORLD‐space sample position:
+                Vector3 worldSample = transform.position + localPos;
+                float h = Mathf.PerlinNoise(
+                    (worldSample.x + noiseOffset.x) * noiseFreq,
+                    (worldSample.z + noiseOffset.y) * noiseFreq
+                ) * heightMul;
+
+                verts[i] = localPos + Vector3.down * h;
+                uvs[i] = new Vector2(x / (float)(N - 1), z / (float)(N - 1));
             }
-            // yield each row so the main thread can render
             yield return null;
         }
 
@@ -78,11 +86,13 @@ public class SeafloorGenerator : MonoBehaviour
         // 3) Build mesh
         Mesh m = new Mesh();
         m.indexFormat = vertCount > 65000 ? UnityEngine.Rendering.IndexFormat.UInt32 : UnityEngine.Rendering.IndexFormat.UInt16;
-        m.vertices  = verts;
+        m.vertices = verts;
         m.triangles = tris;
-        m.uv        = uvs;
+        m.uv = uvs;
         m.RecalculateNormals();
 
         _mf.mesh = m;
+        
+        
     }
 }

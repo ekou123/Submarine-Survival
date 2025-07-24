@@ -10,11 +10,12 @@ using UnityEngine.InputSystem;
 
 public class Character : MonoBehaviourPunCallbacks, IPunObservable
 {
-    public static Character Instance { get; private set; }
+    public static Character Local { get; private set; }
 
     [Header("Prefabs")]
     public GameObject playerUIPrefab;
     public GameObject biomeVisualManagerPrefab;
+    public GameObject streamingSeafloorManagerPrefab;
 
     [Header("PlayerObject")]
     public Transform playerTransform;
@@ -98,7 +99,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
         {
             rb.isKinematic = true;
             rb.useGravity = false;
-
+            
 
             GetComponent<PlayerInput>().enabled = false;
             GetComponent<Interactor>().enabled = false;
@@ -107,6 +108,8 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
 
             return;
         }
+
+        Local = this;
 
 
         controller = GetComponent<CharacterController>();
@@ -144,8 +147,6 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
         GameObject UIObject = Instantiate(playerUIPrefab);
         playerUIObject = UIObject;
 
-        GameObject biomeVisualManagerObject = Instantiate(biomeVisualManagerPrefab);
-
         PlayerUI UIPlayer = UIObject.GetComponent<PlayerUI>();
         if (UIPlayer == null)
         {
@@ -153,14 +154,7 @@ public class Character : MonoBehaviourPunCallbacks, IPunObservable
             return;
         }
 
-        BiomeVisualManager bvm = biomeVisualManagerObject.GetComponent<BiomeVisualManager>();
-        if (bvm == null)
-        {
-            Debug.LogError("Could not find BiomeVisualManager on Instantied Character Object");
-        }
-
         UIPlayer.Setup(this);
-        bvm.Setup(this);
 
         playerCamera = Camera.main;
         if (playerCamera == null)

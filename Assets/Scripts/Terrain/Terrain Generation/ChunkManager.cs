@@ -10,11 +10,5 @@ public class ChunkManager : MonoBehaviour
 
     void Start()
     {
-        // Loop through every chunk coord you want
-        for (int x = 0; x < mapWidthInChunks; x++)
-        for (int z = 0; z < mapDepthInChunks; z++)
-        {
-                spawner.SpawnChunk(x, z);
-        }
     }
 }

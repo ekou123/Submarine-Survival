@@ -116,6 +116,12 @@ public class BiomeManager : MonoBehaviour
                         transform
                     );
 
+                    BiomeVisualManager biomeVisualManager = volume.GetComponent<BiomeVisualManager>();
+                    if (biomeVisualManager == null)
+                    {
+                        Debug.LogError("Could not find BiomeVisualManager on Character component");
+                    }
+
                     volume.transform.localScale = volumeSize;
 
                     // resize the collider to cover exactly chunkW × chunkH × chunkD
