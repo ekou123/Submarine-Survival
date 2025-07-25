@@ -2,9 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class BiomeManager : MonoBehaviour
 {
+    [Header("Prefabs")]
+    public GameObject biomeVolumePrefab;
+    public GameObject seaFloorPrefab;
     [Header("Biome Settings")]
     public List<BiomeData> biomePresets;
 
@@ -20,7 +24,7 @@ public class BiomeManager : MonoBehaviour
     public int seed = 1337;
 
     [Header("Volume Settings")]
-    public GameObject biomeVolumePrefab;
+    
     public Vector3 volumeSize = new Vector3(10f, 10f, 10f);
 
     private BiomeType[,] biomeMap;
@@ -116,6 +120,28 @@ public class BiomeManager : MonoBehaviour
                         transform
                     );
 
+                    float halfH = volumeSize.y * 0.5f;
+                    float floorY = centerPos.y - halfH;
+
+                    var floor = Instantiate(seaFloorPrefab, volume.transform);
+
+                    SeafloorGenerator seafloorGenerator = floor.GetComponent<SeafloorGenerator>();
+                    if (seafloorGenerator == null) {
+                        Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
+                    }
+
+                    // Vector3 volumePos = volume.transform.position; 
+
+                    floor.transform.localPosition = new Vector3(
+                        0f,
+                        0f,
+                        0f
+                    );
+
+                    // float meshSize = (seafloorGenerator.resolution - 1) * seafloorGenerator.scale;
+
+                    // floor.transform.localScale = new Vector3(meshSize, 1f, meshSize);
+
                     BiomeVisualManager biomeVisualManager = volume.GetComponent<BiomeVisualManager>();
                     if (biomeVisualManager == null)
                     {
@@ -140,95 +166,4 @@ public class BiomeManager : MonoBehaviour
                 }
         }
 }
-
-    private IEnumerator GenerateWorldCoroutine()
-    {
-        int chunkSize = Mathf.RoundToInt(volumeSize.x); // assuming square chunks
-
-        for (int x = 0; x < worldWidth; x += chunkSize)
-        {
-            for (int z = 0; z < worldDepth; z += chunkSize)
-            {
-                // Get average biome in the chunk
-                Dictionary<BiomeType, int> biomeCount = new();
-
-                for (int dx = 0; dx < chunkSize; dx++)
-                {
-                    for (int dz = 0; dz < chunkSize; dz++)
-                    {
-                        int tileX = x + dx;
-                        int tileZ = z + dz;
-
-                        if (tileX < worldWidth && tileZ < worldDepth)
-                        {
-                            BiomeType biome = biomeMap[tileX, tileZ];
-
-                            if (!biomeCount.ContainsKey(biome))
-                                biomeCount[biome] = 0;
-
-                            biomeCount[biome]++;
-                        }
-                    }
-                }
-
-                // Find the dominant biome in this chunk
-                BiomeType dominantBiome = BiomeType.Shallow;
-                int maxCount = 0;
-                foreach (var kvp in biomeCount)
-                {
-                    if (kvp.Value > maxCount)
-                    {
-                        maxCount = kvp.Value;
-                        dominantBiome = kvp.Key;
-                    }
-                }
-
-                // Spawn a BiomeVolume GameObject
-                Vector3 centerPosition = new Vector3(
-                x * tileSpacing + (volumeSize.x / 2f),
-                0,
-                z * tileSpacing + (volumeSize.z / 2f)
-            );
-
-                GameObject volume = Instantiate(biomeVolumePrefab, centerPosition, Quaternion.identity, this.transform);
-                volume.transform.localScale = volumeSize;
-
-                var BoxCollider = volume.GetComponent<BoxCollider>();
-                if (BoxCollider != null)
-                {
-                    BoxCollider.center = Vector3.zero;
-                }
-
-                BiomeVolume biomeVolume = volume.GetComponent<BiomeVolume>();
-                if (biomeVolume != null)
-                {
-                    biomeVolume.biomeType = dominantBiome;
-                }
-
-                yield return null; // optional: slow down generation
-            }
-        }
-    }
-
-    public void GenerateWorld()
-    {
-        System.Random rng = new System.Random(seed + 999);
-
-        for (int x = 0; x < worldWidth; x++)
-        {
-            for (int z = 0; z < worldDepth; z++)
-            {
-                BiomeType biomeType = biomeMap[x, z];
-                BiomeData biome = biomePresets.Find(b => b.biomeType == biomeType);
-
-                if (biome != null && biome.terrainPrefabs.Length > 0)
-                {
-                    GameObject prefab = biome.terrainPrefabs[rng.Next(biome.terrainPrefabs.Length)];
-
-                    Vector3 position = new Vector3(x * tileSpacing, 0, z * tileSpacing);
-                    Instantiate(prefab, position, Quaternion.identity, this.transform);
-                }
-            }
-        }
-    }
 }

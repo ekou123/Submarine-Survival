@@ -6,9 +6,13 @@ public class StreamingSeafloorManager : MonoBehaviour
     [Header("Chunk Settings")]
     public GameObject chunkPrefab;    // your 32×32 plane with the displacement shader
     public int        viewRadius     = 2;     // how many chunks out in X/Z to keep
-    public float      chunkSize      = 10f;  // world‐space width/depth of each chunk
-    public float      noiseFreq      = 0.1f; // drives your shader’s _NoiseScale
-    public float      heightMul      = 5f;   // drives your shader’s _HeightMul
+    public float      chunkSize      = 5f;  // world‐space width/depth of each chunk
+    public float      scale = 1f;
+    public int        resolution = 100;
+    public float      noiseFreq = 0.1f;
+    public float      heightMul = 10f;
+
+    float meshSize;
 
     [Header("Player")]
     public Transform  player;         // drag in your Camera or Character transform
@@ -25,6 +29,22 @@ public class StreamingSeafloorManager : MonoBehaviour
         for (int i = 0; i < poolSize; i++)
         {
             var go = Instantiate(chunkPrefab, transform);
+
+            var gen = go.GetComponent<SeafloorGenerator>();
+            if (gen == null)
+            {
+                Debug.LogError("Could not find SeafloorGenerator on Instantiated Chunk Prefab");
+                return;
+            }
+
+            gen.resolution = resolution;
+            gen.scale = scale;
+            gen.noiseFreq = noiseFreq;
+            gen.heightMul = heightMul;
+            gen.noiseOffset = Vector2.zero;
+
+            meshSize = (resolution - 1) * scale;
+
             go.SetActive(false);
             _pool.Enqueue(go);
         }
@@ -62,9 +82,9 @@ public class StreamingSeafloorManager : MonoBehaviour
 
             // position it in world
             go.transform.position = new Vector3(
-                coord.x * chunkSize,
+                coord.x * meshSize,
                 0,
-                coord.z * chunkSize
+                coord.z * meshSize
             );
             go.SetActive(true);
 
@@ -74,8 +94,8 @@ public class StreamingSeafloorManager : MonoBehaviour
             mpb.SetFloat("_NoiseScale", noiseFreq);
             mpb.SetFloat("_HeightMul",   heightMul);
             mpb.SetVector("_NoiseOffset", new Vector4(
-                coord.x * chunkSize,
-                coord.z * chunkSize,
+                coord.x * meshSize,
+                coord.z * meshSize,
                 0, 0
             ));
             rend.SetPropertyBlock(mpb);

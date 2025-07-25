@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: -6833436131713873076}
   - component: {fileID: 2694622272551627718}
   - component: {fileID: 2416586735430169554}
-  - component: {fileID: -488365710186680855}
   - component: {fileID: -6438756358156456035}
+  - component: {fileID: 7094707669339374004}
   m_Layer: 0
   m_Name: BiomeVolume
   m_TagString: Untagged
@@ -32,8 +32,8 @@ Transform:
   m_GameObject: {fileID: 2596270570022300684}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -50, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 10, y: 10, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -88,7 +88,7 @@ MonoBehaviour:
     type: 3}
   noiseFreq: 0
   heightMul: 0
-  chunkSize: 10
+  chunkSize: 1
   mapWidthInChunks: 1
   mapDepthInChunks: 1
 --- !u!33 &2694622272551627718
@@ -141,25 +141,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-488365710186680855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2596270570022300684}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c879621e98418494ab18f4b7cca3d2f0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resolution: 10
-  scale: 1
-  heightMul: 10
-  noiseFreq: 0.1
-  noiseOffset: {x: 0, y: 0}
-  chunkX: 0
-  chunkZ: 0
 --- !u!114 &-6438756358156456035
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -178,3 +159,23 @@ MonoBehaviour:
   directionalLight: {fileID: 0}
   detector: {fileID: 0}
   _waterSurface: {fileID: 0}
+--- !u!114 &7094707669339374004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2596270570022300684}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b92f50bb2a859a848959de1433ea6f64, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chunkPrefab: {fileID: 2596270570022300684}
+  viewRadius: 2
+  chunkSize: 10
+  scale: 1
+  resolution: 10
+  noiseFreq: 0.1
+  heightMul: 10
+  player: {fileID: 0}

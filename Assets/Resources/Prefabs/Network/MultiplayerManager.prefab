@@ -61,9 +61,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   biomePresets:
   - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
-  worldWidth: 1000
-  worldDepth: 1000
-  verticalLayers: 1000
+  worldWidth: 100
+  worldDepth: 100
+  verticalLayers: 2
   layerHeight: 200
   tileSpacing: 1
   heightMultiplier: 3
