@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c879621e98418494ab18f4b7cca3d2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 3
+  resolution: 2
   scale: 1
   heightMul: 1
   noiseFreq: 0.1

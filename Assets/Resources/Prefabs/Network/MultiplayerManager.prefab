@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 766386528243140151}
   - component: {fileID: 5226173238824716134}
   - component: {fileID: 1617152232281971172}
+  - component: {fileID: 5967577624212564130}
   m_Layer: 0
   m_Name: MultiplayerManager
   m_TagString: Untagged
@@ -59,17 +60,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bd751e010c946e459ae43a2aaf4d173, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  biomeVolumePrefab: {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b,
+    type: 3}
+  seaFloorPrefab: {fileID: 2453061138034458386, guid: 8e7e0d5886acf3941b9ce9f753ce355c,
+    type: 3}
   biomePresets:
   - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
-  worldWidth: 100
-  worldDepth: 100
+  worldWidth: 50
+  worldDepth: 50
   verticalLayers: 2
-  layerHeight: 200
+  layerHeight: 0
   tileSpacing: 1
   heightMultiplier: 3
   temperatureScale: 0.01
   moistureScale: 0.01
   seed: 1337
-  biomeVolumePrefab: {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b,
-    type: 3}
-  volumeSize: {x: 100, y: 100, z: 100}
+  volumeSize: {x: 50, y: 50, z: 50}
+--- !u!114 &5967577624212564130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499302050473082854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf8c21dce611a947acd6142811d08d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawner: {fileID: 0}
+  mapWidthInChunks: 10
+  mapDepthInChunks: 10

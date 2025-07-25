@@ -85,12 +85,12 @@ public class BiomeManager : MonoBehaviour
     
     private IEnumerator Generate3DBiomeVolumes()
     {
-        int tileCountPerChunk = Mathf.RoundToInt(volumeSize.x);    // e.g. 10 tiles per chunk
-        float chunkW = tileCountPerChunk * tileSpacing;            // e.g. 10 × 2 = 20 world units
+        int tileCountPerChunk = Mathf.RoundToInt(volumeSize.x);  // e.g. 10 tiles per chunk
+        float chunkW = tileCountPerChunk * tileSpacing;          // e.g. 10 × 2 = 20 world units
         float chunkD = tileCountPerChunk * tileSpacing;
-        float chunkH = volumeSize.y;                               // this should be your layerHeight
+        float chunkH = volumeSize.y;                            // your layer height
 
-         
+
         for (int y = 0; y < verticalLayers; y++)
         {
             float depthY = -y * chunkH; // Y is in world units
@@ -120,23 +120,31 @@ public class BiomeManager : MonoBehaviour
                         transform
                     );
 
-                    float halfH = volumeSize.y * 0.5f;
-                    float floorY = centerPos.y - halfH;
+                    // volume.transform.localScale = new Vector3(chunkW, chunkH, chunkD);
 
-                    var floor = Instantiate(seaFloorPrefab, volume.transform);
+                    if (y == verticalLayers - 1)
+                    {
+                        float halfH = volumeSize.y * 0.5f;
+                        float floorY = centerPos.y - halfH;
 
-                    SeafloorGenerator seafloorGenerator = floor.GetComponent<SeafloorGenerator>();
-                    if (seafloorGenerator == null) {
-                        Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
+                        var floor = Instantiate(seaFloorPrefab, volume.transform);
+
+                        SeafloorGenerator seafloorGenerator = floor.GetComponent<SeafloorGenerator>();
+                        if (seafloorGenerator == null)
+                        {
+                            Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
+                        }
+
+                        // Vector3 volumePos = volume.transform.position; 
+
+                        floor.transform.localPosition = new Vector3(
+                            0f,
+                            0f,
+                            0f
+                        );
                     }
 
-                    // Vector3 volumePos = volume.transform.position; 
 
-                    floor.transform.localPosition = new Vector3(
-                        0f,
-                        0f,
-                        0f
-                    );
 
                     // float meshSize = (seafloorGenerator.resolution - 1) * seafloorGenerator.scale;
 
