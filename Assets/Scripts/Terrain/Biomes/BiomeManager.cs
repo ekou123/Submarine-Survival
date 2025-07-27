@@ -1,6 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
-
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,6 +11,8 @@ public class BiomeManager : MonoBehaviour
     public GameObject seaFloorPrefab;
     [Header("Biome Settings")]
     public List<BiomeData> biomePresets;
+    [SerializeField] private float chunkWorldSize = 500f;
+    [SerializeField] private float chunkHeight = 20f;
 
     [Header("Noise Settings")]
     public int worldWidth = 200;
@@ -21,16 +23,25 @@ public class BiomeManager : MonoBehaviour
     public float heightMultiplier = 3f;
     public float temperatureScale = 0.01f;
     public float moistureScale = 0.01f;
+    public Vector2 chunkOrigin;
+    float offsetX = 0;
+    float offsetZ = 0;
     public int seed = 1337;
 
     [Header("Volume Settings")]
-    
+
     public Vector3 volumeSize = new Vector3(10f, 10f, 10f);
 
+    private System.Random rng;
     private BiomeType[,] biomeMap;
 
     private void Start()
     {
+        rng = new System.Random();
+
+        offsetX = rng.Next(0, 100000);
+        offsetZ = rng.Next(0, 100000);
+
         GenerateBiomeMap();
         StartCoroutine(Generate3DBiomeVolumes());
     }
@@ -82,13 +93,13 @@ public class BiomeManager : MonoBehaviour
 
         return best;
     }
-    
+
     private IEnumerator Generate3DBiomeVolumes()
     {
         int tileCountPerChunk = Mathf.RoundToInt(volumeSize.x);  // e.g. 10 tiles per chunk
-        float chunkW = tileCountPerChunk * tileSpacing;          // e.g. 10 × 2 = 20 world units
-        float chunkD = tileCountPerChunk * tileSpacing;
-        float chunkH = volumeSize.y;                            // your layer height
+        float chunkW = chunkWorldSize;
+        float chunkD = chunkWorldSize;
+        float chunkH = chunkHeight;
 
 
         for (int y = 0; y < verticalLayers; y++)
@@ -120,7 +131,7 @@ public class BiomeManager : MonoBehaviour
                         transform
                     );
 
-                    // volume.transform.localScale = new Vector3(chunkW, chunkH, chunkD);
+                     volume.transform.localScale = new Vector3(chunkW, chunkH, chunkD);
 
                     if (y == verticalLayers - 1)
                     {
@@ -135,7 +146,15 @@ public class BiomeManager : MonoBehaviour
                             Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
                         }
 
+                        seafloorGenerator.Init(seed, x, z, tileSpacing, offsetX, offsetZ, chunkW);
+
                         // Vector3 volumePos = volume.transform.position; 
+
+                        floor.transform.localScale = new Vector3(
+                            1f / volume.transform.localScale.x,
+                            1f / volume.transform.localScale.y,
+                            1f / volume.transform.localScale.z
+                        );
 
                         floor.transform.localPosition = new Vector3(
                             0f,
@@ -156,7 +175,7 @@ public class BiomeManager : MonoBehaviour
                         Debug.LogError("Could not find BiomeVisualManager on Character component");
                     }
 
-                    volume.transform.localScale = volumeSize;
+                    
 
                     // resize the collider to cover exactly chunkW × chunkH × chunkD
                     var box = volume.GetComponent<BoxCollider>();
@@ -173,5 +192,7 @@ public class BiomeManager : MonoBehaviour
                     yield return null;
                 }
         }
-}
+    }
+
+    
 }

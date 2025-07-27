@@ -173,9 +173,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   chunkPrefab: {fileID: 2596270570022300684}
   viewRadius: 2
-  chunkSize: 10
+  chunkSize: 500
   scale: 1
-  resolution: 10
+  resolution: 1
   noiseFreq: 0.1
   heightMul: 10
   player: {fileID: 0}

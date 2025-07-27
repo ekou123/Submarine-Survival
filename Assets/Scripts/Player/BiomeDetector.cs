@@ -26,7 +26,7 @@ public class BiomeDetector : MonoBehaviour
 
     public void ChangeBiome(BiomeType biomeType)
     {
-         OnBiomeChanged?.Invoke(biomeType);
+         //OnBiomeChanged?.Invoke(biomeType);
     }
 
     

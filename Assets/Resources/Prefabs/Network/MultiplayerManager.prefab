@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 5226173238824716134}
   - component: {fileID: 1617152232281971172}
   - component: {fileID: 5967577624212564130}
+  - component: {fileID: 8308896287404938368}
   m_Layer: 0
   m_Name: MultiplayerManager
   m_TagString: Untagged
@@ -66,17 +67,35 @@ MonoBehaviour:
     type: 3}
   biomePresets:
   - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
-  worldWidth: 50
-  worldDepth: 50
+  chunkWorldSize: 500
+  chunkHeight: 20
+  worldWidth: 2000
+  worldDepth: 1000
   verticalLayers: 2
   layerHeight: 0
   tileSpacing: 1
   heightMultiplier: 3
   temperatureScale: 0.01
   moistureScale: 0.01
+  chunkOrigin: {x: 0, y: 0}
   seed: 1337
-  volumeSize: {x: 50, y: 50, z: 50}
+  volumeSize: {x: 500, y: 500, z: 500}
 --- !u!114 &5967577624212564130
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1499302050473082854}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faf8c21dce611a947acd6142811d08d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawner: {fileID: 0}
+  mapWidthInChunks: 10
+  mapDepthInChunks: 10
+--- !u!114 &8308896287404938368
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

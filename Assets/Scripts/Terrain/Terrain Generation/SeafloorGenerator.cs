@@ -10,6 +10,15 @@ public class SeafloorGenerator : MonoBehaviour
     public float heightMul = 10f;
     public float noiseFreq = 0.1f;
     public Vector2 noiseOffset;
+    [SerializeField] private float chunkWorldSize = 500f;
+    [SerializeField] private float chunkHeight = 500f;
+
+    [Header("Seafloor Settings")]
+    private int seed;
+    private Vector2 chunkOrigin;
+    private float tileSpacing;
+    private float offsetX;
+    private float offsetZ;
 
     [HideInInspector] public int chunkX, chunkZ;
 
@@ -19,7 +28,7 @@ public class SeafloorGenerator : MonoBehaviour
     void Awake()
     {
         _mf = GetComponent<MeshFilter>();
-        _meshSize = (resolution - 1) * scale;
+        //_meshSize = (resolution - 1) * scale;
     }
 
     void Start()
@@ -105,23 +114,45 @@ public class SeafloorGenerator : MonoBehaviour
         mesh.uv = uvs;
         mesh.RecalculateNormals();
         _mf.mesh = mesh;
+
+        Debug.Log($"[Mesh] scale: {scale}, meshSize: {_meshSize}, position: {transform.position}");
     }
-    
-    #if UNITY_EDITOR
+
+    public void Init(int seed, int chunkX, int chunkZ, float spacing, float offsetX, float offsetZ, float chunkWorldSize)
+    {
+        // store seed & offsets
+        this.seed = seed;
+        this.chunkOrigin = new Vector2(chunkX, chunkZ);
+        this.tileSpacing = spacing;
+        this.offsetX = offsetX;
+        this.offsetZ = offsetZ;
+
+        this.scale = chunkWorldSize / (resolution - 1);
+        _meshSize = chunkWorldSize;
+
+    }
+
+// #if UNITY_EDITOR
+//     void OnDrawGizmos()
+//     {
+//         // compute the total span of your mesh:
+//         float meshSize = (resolution - 1) * scale;
+
+//         // pick a color
+//         Gizmos.color = Color.cyan;
+
+//         // draw a wire‐frame cube at this GameObject’s position,
+//         // centered on the XZ grid, 1 unit tall
+//         Vector3 center = transform.position;
+//         Vector3 size = new Vector3(meshSize, 1f, meshSize);
+//         Gizmos.DrawWireCube(center, size);
+//     }
+// #endif
+
     void OnDrawGizmos()
     {
-        // compute the total span of your mesh:
-        float meshSize = (resolution - 1) * scale;
-
-        // pick a color
-        Gizmos.color = Color.cyan;
-
-        // draw a wire‐frame cube at this GameObject’s position,
-        // centered on the XZ grid, 1 unit tall
-        Vector3 center = transform.position;
-        Vector3 size   = new Vector3(meshSize, 1f, meshSize);
-        Gizmos.DrawWireCube(center, size);
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, new Vector3(_meshSize, 1, _meshSize));
     }
-#endif
 
 }

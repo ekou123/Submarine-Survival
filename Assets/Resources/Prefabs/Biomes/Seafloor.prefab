@@ -62,7 +62,7 @@ MeshRenderer:
   m_RenderingLayerMask: 257
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 0}
+  - {fileID: 2100000, guid: 80114bc117609cd4e9c988f8692e7a68, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -96,10 +96,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c879621e98418494ab18f4b7cca3d2f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resolution: 2
+  resolution: 51
   scale: 1
-  heightMul: 1
+  heightMul: 10
   noiseFreq: 0.1
   noiseOffset: {x: 0, y: 0}
+  chunkWorldSize: 50
+  chunkHeight: 50
   chunkX: 0
   chunkZ: 0
