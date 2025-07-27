@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using UnityEditor.Media;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -96,7 +97,7 @@ public class BiomeManager : MonoBehaviour
 
     private IEnumerator Generate3DBiomeVolumes()
     {
-        int tileCountPerChunk = Mathf.RoundToInt(volumeSize.x);  // e.g. 10 tiles per chunk
+        int tileCountPerChunk = Mathf.RoundToInt(chunkWorldSize);  // e.g. 10 tiles per chunk
         float chunkW = chunkWorldSize;
         float chunkD = chunkWorldSize;
         float chunkH = chunkHeight;
@@ -106,8 +107,11 @@ public class BiomeManager : MonoBehaviour
         {
             float depthY = -y * chunkH; // Y is in world units
 
-            for (int x = 0; x < worldWidth; x += tileCountPerChunk)
-                for (int z = 0; z < worldDepth; z += tileCountPerChunk)
+            int chunkIndexX = 0;
+            for (int x = 0; x < worldWidth; x += tileCountPerChunk, chunkIndexX++)
+            {
+                int chunkIndexZ = 0;
+                for (int z = 0; z < worldDepth; z += tileCountPerChunk, chunkIndexZ++)
                 {
                     float temp = Mathf.PerlinNoise((x + seed) * temperatureScale,
                                                    (z + seed) * temperatureScale);
@@ -119,9 +123,9 @@ public class BiomeManager : MonoBehaviour
 
                     // compute the world‐space center of this chunk
                     Vector3 centerPos = new Vector3(
-                        x * tileSpacing + chunkW / 2f,
+                        chunkIndexX * chunkW + chunkW / 2f,
                         depthY - chunkH / 2f,
-                        z * tileSpacing + chunkD / 2f
+                        chunkIndexZ * chunkD + chunkD / 2f
                     );
 
                     var volume = Instantiate(
@@ -131,7 +135,16 @@ public class BiomeManager : MonoBehaviour
                         transform
                     );
 
-                     volume.transform.localScale = new Vector3(chunkW, chunkH, chunkD);
+                    volume.transform.localScale = new Vector3(1f, 1f, 1f);
+
+                    var box = volume.GetComponent<BoxCollider>();
+                    if (box != null)
+                    {
+                        Debug.Log("Deez Nuts");
+                        box.size = new Vector3(chunkW, chunkH, chunkD);
+
+                        box.center = Vector3.zero;
+                    }
 
                     if (y == verticalLayers - 1)
                     {
@@ -150,17 +163,10 @@ public class BiomeManager : MonoBehaviour
 
                         // Vector3 volumePos = volume.transform.position; 
 
-                        floor.transform.localScale = new Vector3(
-                            1f / volume.transform.localScale.x,
-                            1f / volume.transform.localScale.y,
-                            1f / volume.transform.localScale.z
-                        );
 
-                        floor.transform.localPosition = new Vector3(
-                            0f,
-                            0f,
-                            0f
-                        );
+
+                        floor.transform.localScale = Vector3.one;
+                        floor.transform.localPosition = Vector3.zero;
                     }
 
 
@@ -175,14 +181,10 @@ public class BiomeManager : MonoBehaviour
                         Debug.LogError("Could not find BiomeVisualManager on Character component");
                     }
 
-                    
+
 
                     // resize the collider to cover exactly chunkW × chunkH × chunkD
-                    var box = volume.GetComponent<BoxCollider>();
-                    if (box != null)
-                    {
-                        box.center = Vector3.zero;
-                    }
+
 
                     // assign your biome type
                     var v = volume.GetComponent<BiomeVolume>();
@@ -191,6 +193,7 @@ public class BiomeManager : MonoBehaviour
 
                     yield return null;
                 }
+            }
         }
     }
 
