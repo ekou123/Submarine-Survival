@@ -12,10 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52072fe18caa90842b6888f7ad0bc98b, type: 3}
   m_Name: TestBiome2
   m_EditorClassIdentifier: 
-  biomeType: 0
-  temperature: 0
-  moisture: 0
+  resolution: 100
+  scale: 1
+  heightMultiplier: 2
+  noiseFrequency: 0.1
+  fogColor: {r: 0, g: 0, b: 0, a: 0}
+  fogDensity: 0
+  ambientColor: {r: 0, g: 0, b: 0, a: 0}
+  slopeStrength: 0.1
+  slopeStartZ: 0
+  waterMaterialOverride: {fileID: 0}
+  waterSurfaceColor: {r: 0, g: 0, b: 0, a: 0}
+  waterUnderColor: {r: 0, g: 0, b: 0, a: 0}
+  postProcessProfile: {fileID: 0}
+  temperature: 0.164
+  moisture: 0.316
   debugColor: {r: 0, g: 0, b: 0, a: 0}
   minDepth: 0
-  maxDepth: 0
-  terrainPrefabs: []
+  maxDepth: -1000
+  terrainPrefabs:
+  - {fileID: 2596270570022300684, guid: 08492051706e5944999c4e310a8c4b7b, type: 3}

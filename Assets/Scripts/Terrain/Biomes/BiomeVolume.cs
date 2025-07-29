@@ -5,28 +5,18 @@ using UnityEngine;
 [RequireComponent(typeof(BoxCollider))]
 public class BiomeVolume : MonoBehaviour
 {
-    public BiomeType biomeType;
+    public BiomeData biomeData;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.TryGetComponent<BiomeDetector>(out var det))
-        {
-            if (det.currentBiome != biomeType)
-            {
-                det.currentBiome = biomeType;
-                det.ChangeBiome(biomeType);
-            }
-        }
     }
 
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.TryGetComponent<BiomeDetector>(out var det))
-        {
-            det.currentBiome = det.defaultBiome;
-            det.ChangeBiome(det.currentBiome);
-        }
+        // 
+
+
     }
     private void Reset()
     {

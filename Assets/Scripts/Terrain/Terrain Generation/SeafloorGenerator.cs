@@ -20,7 +20,13 @@ public class SeafloorGenerator : MonoBehaviour
     private float offsetX;
     private float offsetZ;
 
+
+    [Header("Slope Settings")]
+    public float slopeStrength = 0.5f;
+    public float slopeStartZ = 0f;
+
     [HideInInspector] public int chunkX, chunkZ;
+    [HideInInspector] public BiomeData biomeData;
 
     MeshFilter _mf;
     float _meshSize;   // = (resolution-1)*scale
@@ -48,6 +54,35 @@ public class SeafloorGenerator : MonoBehaviour
         StartCoroutine(BuildMeshCoroutine());
     }
 
+    public void Init(
+    int seed,
+    int chunkX,
+    int chunkZ,
+    float spacing,
+    float offsetX,
+    float offsetZ,
+    float chunkWorldSize,
+    BiomeData data           // ← new param
+) {
+    this.biomeData = data;
+
+    // now pull your per-biome settings:
+    this.heightMul     = data.heightMultiplier;
+    this.noiseFreq     = data.noiseFrequency;
+    this.slopeStrength = data.slopeStrength;
+    this.slopeStartZ   = data.slopeStartZ;
+    // …any other biome-specific overrides…
+
+    // rest of your init:
+    this.scale    = chunkWorldSize / (resolution - 1);
+    this._meshSize = chunkWorldSize;
+    this.seed      = seed;
+    this.chunkOrigin = new Vector2(chunkX, chunkZ);                                                                                                                                                                                                       
+    this.tileSpacing = spacing;
+    this.offsetX    = offsetX;
+    this.offsetZ    = offsetZ;
+}
+
     IEnumerator BuildMeshCoroutine()
     {
         int N = resolution;
@@ -74,10 +109,12 @@ public class SeafloorGenerator : MonoBehaviour
 
                 // for noise, sample in WORLD space:
                 Vector3 worldSample = transform.position + local;
+
+                float slope = Mathf.Max(0, worldSample.z - slopeStartZ) * slopeStrength;
                 float h = Mathf.PerlinNoise(
                     (worldSample.x + noiseOffset.x) * noiseFreq,
                     (worldSample.z + noiseOffset.y) * noiseFreq
-                ) * heightMul;
+                ) * heightMul + slope;
 
                 verts[i] = local + Vector3.down * h;
                 uvs[i] = new Vector2(x / (float)(N - 1), z / (float)(N - 1));
@@ -118,19 +155,7 @@ public class SeafloorGenerator : MonoBehaviour
         Debug.Log($"[Mesh] scale: {scale}, meshSize: {_meshSize}, position: {transform.position}");
     }
 
-    public void Init(int seed, int chunkX, int chunkZ, float spacing, float offsetX, float offsetZ, float chunkWorldSize)
-    {
-        // store seed & offsets
-        this.seed = seed;
-        this.chunkOrigin = new Vector2(chunkX, chunkZ);
-        this.tileSpacing = spacing;
-        this.offsetX = offsetX;
-        this.offsetZ = offsetZ;
-
-        this.scale = chunkWorldSize / (resolution - 1);
-        _meshSize = chunkWorldSize;
-
-    }
+    
 
 // #if UNITY_EDITOR
 //     void OnDrawGizmos()

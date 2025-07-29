@@ -29,12 +29,12 @@ public class BiomeManager : MonoBehaviour
     float offsetZ = 0;
     public int seed = 1337;
 
-    [Header("Volume Settings")]
-
-    public Vector3 volumeSize = new Vector3(10f, 10f, 10f);
+    [Header("Slope Settings")]
+    public float slopeStrength = 0.5f;
+    public float maxDepth = 0f;
 
     private System.Random rng;
-    private BiomeType[,] biomeMap;
+    private BiomeData[,] biomeMap;
 
     private void Start()
     {
@@ -49,7 +49,7 @@ public class BiomeManager : MonoBehaviour
 
     public void GenerateBiomeMap()
     {
-        biomeMap = new BiomeType[worldWidth, worldDepth];
+        biomeMap = new BiomeData[worldWidth, worldDepth];
         System.Random rng = new System.Random(seed);
         float offsetX = rng.Next(0, 100000);
         float offsetZ = rng.Next(0, 100000);
@@ -65,7 +65,7 @@ public class BiomeManager : MonoBehaviour
 
                 BiomeData closest = GetClosestBiome(temp, moisture, 0f);
 
-                biomeMap[x, z] = closest.biomeType;
+                biomeMap[x, z] = closest;
             }
         }
     }
@@ -113,10 +113,13 @@ public class BiomeManager : MonoBehaviour
                 int chunkIndexZ = 0;
                 for (int z = 0; z < worldDepth; z += tileCountPerChunk, chunkIndexZ++)
                 {
-                    float temp = Mathf.PerlinNoise((x + seed) * temperatureScale,
-                                                   (z + seed) * temperatureScale);
-                    float moisture = Mathf.PerlinNoise((x + seed + 1000) * moistureScale,
-                                                   (z + seed + 1000) * moistureScale);
+                    float sampleX = chunkIndexX * chunkW + chunkW * 0.5f + offsetX;
+                    float sampleZ = chunkIndexZ * chunkD + chunkD * 0.5f + offsetZ;
+
+                    float temp = Mathf.PerlinNoise(sampleX * temperatureScale,
+                                                   sampleZ * temperatureScale);
+                    float moisture = Mathf.PerlinNoise((sampleX + 1000) * moistureScale,
+                                                   (sampleZ + 1000) * moistureScale);
 
                     BiomeData data = GetClosestBiome(temp, moisture, depthY);
                     if (data == null) continue;
@@ -140,18 +143,26 @@ public class BiomeManager : MonoBehaviour
                     var box = volume.GetComponent<BoxCollider>();
                     if (box != null)
                     {
-                        Debug.Log("Deez Nuts");
+                        
                         box.size = new Vector3(chunkW, chunkH, chunkD);
 
                         box.center = Vector3.zero;
                     }
 
-                    if (y == verticalLayers - 1)
+                    if (y == 0)
                     {
-                        float halfH = volumeSize.y * 0.5f;
-                        float floorY = centerPos.y - halfH;
 
                         var floor = Instantiate(seaFloorPrefab, volume.transform);
+
+                        float waterY = 0f; // or pull from your WaterSurface.transform.position.y
+                        floor.transform.parent = null;           // un-parent so we can position it absolutely
+                        floor.transform.position = new Vector3(
+                        centerPos.x,
+                        waterY,
+                        centerPos.z
+                        );
+
+                        floor.transform.SetParent(volume.transform, /* worldPositionStays: */ true);
 
                         SeafloorGenerator seafloorGenerator = floor.GetComponent<SeafloorGenerator>();
                         if (seafloorGenerator == null)
@@ -159,14 +170,17 @@ public class BiomeManager : MonoBehaviour
                             Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
                         }
 
-                        seafloorGenerator.Init(seed, x, z, tileSpacing, offsetX, offsetZ, chunkW);
+                        
+
+                        seafloorGenerator.Init(seed, x, z, tileSpacing, offsetX, offsetZ, chunkW, data);
 
                         // Vector3 volumePos = volume.transform.position; 
 
 
 
                         floor.transform.localScale = Vector3.one;
-                        floor.transform.localPosition = Vector3.zero;
+                        floor.transform.localPosition = new Vector3(0f, chunkH * 0.5f, 0f);
+                        
                     }
 
 
@@ -189,7 +203,7 @@ public class BiomeManager : MonoBehaviour
                     // assign your biome type
                     var v = volume.GetComponent<BiomeVolume>();
                     if (v != null)
-                        v.biomeType = data.biomeType;
+                        v.biomeData = data;
 
                     yield return null;
                 }

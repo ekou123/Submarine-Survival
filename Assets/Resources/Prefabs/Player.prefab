@@ -313,6 +313,8 @@ GameObject:
   - component: {fileID: 7592786350933134073}
   - component: {fileID: 7617086603526697999}
   - component: {fileID: 3760399035906461825}
+  - component: {fileID: -3373583658869573648}
+  - component: {fileID: -2842227399833565704}
   - component: {fileID: 3423919786786362644}
   m_Layer: 0
   m_Name: Player
@@ -476,6 +478,36 @@ MonoBehaviour:
   interactingRadius: 1
   cameraTransform: {fileID: 3657147588548537830}
   interactableTarget: {fileID: 0}
+--- !u!114 &-3373583658869573648
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2752280250483134406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c6e6a49276a37a4d9afb42c729b15ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detector: {fileID: 0}
+  globalVolume: {fileID: 0}
+  directionalLight: {fileID: 0}
+  waterSurface: {fileID: 0}
+--- !u!114 &-2842227399833565704
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2752280250483134406}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0b11e5067fd2104c80dbc6b976a94dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultBiomeData: {fileID: 0}
+  currentBiomeData: {fileID: 0}
 --- !u!114 &3423919786786362644
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -619,5 +651,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e0b11e5067fd2104c80dbc6b976a94dd, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentBiome: 2
-  defaultBiome: 2
+  defaultBiomeData: {fileID: 0}
+  currentBiomeData: {fileID: 0}

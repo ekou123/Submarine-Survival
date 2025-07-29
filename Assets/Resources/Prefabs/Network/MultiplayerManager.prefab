@@ -66,12 +66,13 @@ MonoBehaviour:
   seaFloorPrefab: {fileID: 2453061138034458386, guid: 8e7e0d5886acf3941b9ce9f753ce355c,
     type: 3}
   biomePresets:
+  - {fileID: 11400000, guid: 697756dbb55d6104597b0d606b15ba3d, type: 2}
   - {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d, type: 2}
-  chunkWorldSize: 500
-  chunkHeight: 20
-  worldWidth: 2000
-  worldDepth: 1000
-  verticalLayers: 2
+  chunkWorldSize: 50
+  chunkHeight: 50
+  worldWidth: 200
+  worldDepth: 750
+  verticalLayers: 15
   layerHeight: 0
   tileSpacing: 1
   heightMultiplier: 3
@@ -79,7 +80,8 @@ MonoBehaviour:
   moistureScale: 0.01
   chunkOrigin: {x: 0, y: 0}
   seed: 1337
-  volumeSize: {x: 500, y: 500, z: 500}
+  slopeStrength: 0.5
+  maxDepth: 0
 --- !u!114 &5967577624212564130
 MonoBehaviour:
   m_ObjectHideFlags: 0
