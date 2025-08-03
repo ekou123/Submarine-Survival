@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resolution: 100
   scale: 1
-  heightMultiplier: 10
+  heightMultiplier: 2
   noiseFrequency: 0.1
   fogColor: {r: 0, g: 0, b: 0, a: 0}
   fogDensity: 0

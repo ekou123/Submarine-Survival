@@ -1,215 +1,127 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Media;
+using Den.Tools;
+using MapMagic.Core;
+using MapMagic.Terrains;
 using UnityEngine;
-using UnityEngine.Rendering;
 
+[RequireComponent(typeof(MapMagicObject))]
 public class BiomeManager : MonoBehaviour
 {
+    [Header("MapMagic Settings")]
+    [Tooltip("The one and only MapMagicObject in your scene")]
+    [SerializeField] private MapMagicObject mapMagicObj;
+
     [Header("Prefabs")]
     public GameObject biomeVolumePrefab;
-    public GameObject seaFloorPrefab;
-    [Header("Biome Settings")]
+
+    [Header("World Settings")]
+    public int worldWidth  = 200;
+    public int worldDepth  = 1000;
+    public int verticalLayers = 4;
+    public float chunkHeight   = 20f;
     public List<BiomeData> biomePresets;
-    [SerializeField] private float chunkWorldSize = 500f;
-    [SerializeField] private float chunkHeight = 20f;
 
     [Header("Noise Settings")]
-    public int worldWidth = 200;
-    public int worldDepth = 1000;
-    public int verticalLayers = 4;
-    public float layerHeight = 20f; // How tall each vertical biome chunk is
-    public float tileSpacing = 2f;
-    public float heightMultiplier = 3f;
     public float temperatureScale = 0.01f;
-    public float moistureScale = 0.01f;
-    public Vector2 chunkOrigin;
-    float offsetX = 0;
-    float offsetZ = 0;
-    public int seed = 1337;
+    public float moistureScale    = 0.01f;
+    public int   seed             = 1337;
 
-    [Header("Slope Settings")]
-    public float slopeStrength = 0.5f;
-    public float maxDepth = 0f;
-
-    private System.Random rng;
+    // internal
     private BiomeData[,] biomeMap;
 
-    private void Start()
+    void Awake()
     {
-        rng = new System.Random();
+        // 1) cache your MapMagicObject (you can also drag‐drop it in the Inspector)
+        if (mapMagicObj == null) mapMagicObj = GetComponent<MapMagicObject>();
 
-        offsetX = rng.Next(0, 100000);
-        offsetZ = rng.Next(0, 100000);
+        // 2) build your 2D biome lookup table once
+        BuildBiomeMap();
 
-        GenerateBiomeMap();
-        StartCoroutine(Generate3DBiomeVolumes());
+        // 3) hook into MapMagic’s tile‐creation event
+        mapMagicObj.tiles.onTileCreated += OnTileCreated;
     }
 
-    public void GenerateBiomeMap()
+    void OnDestroy()
+    {
+        // unhook to avoid leaks
+        mapMagicObj.tiles.onTileCreated -= OnTileCreated;
+    }
+
+    // ---------------  
+    // 1. Build your biomeMap[x,z]
+    // ---------------
+    void BuildBiomeMap()
     {
         biomeMap = new BiomeData[worldWidth, worldDepth];
-        System.Random rng = new System.Random(seed);
-        float offsetX = rng.Next(0, 100000);
-        float offsetZ = rng.Next(0, 100000);
+        var rng = new System.Random(seed);
+        float offX = rng.Next(0,100000);
+        float offZ = rng.Next(0,100000);
 
-        for (int x = 0; x < worldWidth; x++)
+        for(int x=0; x<worldWidth; x++)
+        for(int z=0; z<worldDepth; z++)
         {
-            for (int z = 0; z < worldDepth; z++)
-            {
-                float temp = Mathf.PerlinNoise((x + offsetX) * temperatureScale,
-                                               (z + offsetZ) * temperatureScale);
-                float moisture = Mathf.PerlinNoise((x + offsetX + 1000) * moistureScale,
-                                                   (z + offsetZ + 1000) * moistureScale);
-
-                BiomeData closest = GetClosestBiome(temp, moisture, 0f);
-
-                biomeMap[x, z] = closest;
-            }
+            float temp = Mathf.PerlinNoise((x+offX)*temperatureScale,(z+offZ)*temperatureScale);
+            float moist= Mathf.PerlinNoise((x+offX+1000)*moistureScale,(z+offZ+1000)*moistureScale);
+            biomeMap[x,z] = GetClosestBiome(temp,moist,0f);
         }
     }
 
-    private BiomeData GetClosestBiome(float temp, float moisture, float depthY)
+    BiomeData GetClosestBiome(float t, float m, float depthY)
     {
         BiomeData best = null;
-        float minDist = float.MaxValue;
-
-        foreach (var biome in biomePresets)
+        float    minD = float.MaxValue;
+        foreach(var b in biomePresets)
         {
-            // Skip biomes that don't apply at this depth
-            if (depthY > biome.minDepth || depthY < biome.maxDepth)
-                continue;
-
-            float dT = biome.temperature - temp;
-            float dM = biome.moisture - moisture;
-            float dist = dT * dT + dM * dM;
-
-            if (dist < minDist)
-            {
-                minDist = dist;
-                best = biome;
-            }
+            if (depthY>b.minDepth || depthY<b.maxDepth) continue;
+            float dT = b.temperature - t;
+            float dM = b.moisture    - m;
+            float d  = dT*dT + dM*dM;
+            if (d<minD) { minD=d; best=b; }
         }
-
         return best;
     }
 
-    private IEnumerator Generate3DBiomeVolumes()
+    // ---------------  
+    // 2. Called for each tile MM generates
+    // ---------------
+    private void OnTileCreated(Coord coord, TerrainTile tile)
     {
-        int tileCountPerChunk = Mathf.RoundToInt(chunkWorldSize);  // e.g. 10 tiles per chunk
-        float chunkW = chunkWorldSize;
-        float chunkD = chunkWorldSize;
-        float chunkH = chunkHeight;
+        // the actual Terrain GameObject
+        var go      = tile.gameObject;
+        var terrain = go.GetComponent<Terrain>();
+        if (terrain==null) return;
 
+        // size in world‐units of that tile
+        Vector3 size = terrain.terrainData.size;
 
-        for (int y = 0; y < verticalLayers; y++)
+        // world‐space X,Z center for this tile
+        Vector3 centerXZ = go.transform.position + new Vector3(size.x*0.5f, 0, size.z*0.5f);
+
+        // for each vertical slice (layer)
+        for(int y=0; y<verticalLayers; y++)
         {
-            float depthY = -y * chunkH; // Y is in world units
+            float depthY = -y * chunkHeight;
+            float sampleX = (coord.x * size.x) + size.x*0.5f;
+            float sampleZ = (coord.z * size.z) + size.z*0.5f;
 
-            int chunkIndexX = 0;
-            for (int x = 0; x < worldWidth; x += tileCountPerChunk, chunkIndexX++)
-            {
-                int chunkIndexZ = 0;
-                for (int z = 0; z < worldDepth; z += tileCountPerChunk, chunkIndexZ++)
-                {
-                    float sampleX = chunkIndexX * chunkW + chunkW * 0.5f + offsetX;
-                    float sampleZ = chunkIndexZ * chunkD + chunkD * 0.5f + offsetZ;
+            float temp = Mathf.PerlinNoise(sampleX*temperatureScale, sampleZ*temperatureScale);
+            float moist= Mathf.PerlinNoise((sampleX+1000)*moistureScale, (sampleZ+1000)*moistureScale);
 
-                    float temp = Mathf.PerlinNoise(sampleX * temperatureScale,
-                                                   sampleZ * temperatureScale);
-                    float moisture = Mathf.PerlinNoise((sampleX + 1000) * moistureScale,
-                                                   (sampleZ + 1000) * moistureScale);
+            var data = GetClosestBiome(temp, moist, depthY);
+            if (data==null) continue;
 
-                    BiomeData data = GetClosestBiome(temp, moisture, depthY);
-                    if (data == null) continue;
+            // spawn your biome volume at the correct world Y
+            Vector3 spawnPos = new Vector3(centerXZ.x, depthY - chunkHeight*0.5f, centerXZ.z);
+            var volume = Instantiate(biomeVolumePrefab, spawnPos, Quaternion.identity, go.transform);
 
-                    // compute the world‐space center of this chunk
-                    Vector3 centerPos = new Vector3(
-                        chunkIndexX * chunkW + chunkW / 2f,
-                        depthY - chunkH / 2f,
-                        chunkIndexZ * chunkD + chunkD / 2f
-                    );
+            // set up its collider
+            var box = volume.GetComponent<BoxCollider>();
+            box.size   = new Vector3(size.x, chunkHeight, size.z);
+            box.center = Vector3.zero;
 
-                    var volume = Instantiate(
-                        biomeVolumePrefab,
-                        centerPos,
-                        Quaternion.identity,
-                        transform
-                    );
-
-                    volume.transform.localScale = new Vector3(1f, 1f, 1f);
-
-                    var box = volume.GetComponent<BoxCollider>();
-                    if (box != null)
-                    {
-                        
-                        box.size = new Vector3(chunkW, chunkH, chunkD);
-
-                        box.center = Vector3.zero;
-                    }
-
-                    if (y == 0)
-                    {
-
-                        var floor = Instantiate(seaFloorPrefab, volume.transform);
-
-                        float waterY = 0f; // or pull from your WaterSurface.transform.position.y
-                        floor.transform.parent = null;           // un-parent so we can position it absolutely
-                        floor.transform.position = new Vector3(
-                        centerPos.x,
-                        waterY,
-                        centerPos.z
-                        );
-
-                        floor.transform.SetParent(volume.transform, /* worldPositionStays: */ true);
-
-                        SeafloorGenerator seafloorGenerator = floor.GetComponent<SeafloorGenerator>();
-                        if (seafloorGenerator == null)
-                        {
-                            Debug.LogError("Could not find SeafloorGenerator on Instantiated Object");
-                        }
-
-                        
-
-                        seafloorGenerator.Init(seed, x, z, tileSpacing, offsetX, offsetZ, chunkW, data);
-
-                        // Vector3 volumePos = volume.transform.position; 
-
-
-
-                        floor.transform.localScale = Vector3.one;
-                        floor.transform.localPosition = new Vector3(0f, chunkH * 0.5f, 0f);
-                        
-                    }
-
-
-
-                    // float meshSize = (seafloorGenerator.resolution - 1) * seafloorGenerator.scale;
-
-                    // floor.transform.localScale = new Vector3(meshSize, 1f, meshSize);
-
-                    BiomeVisualManager biomeVisualManager = volume.GetComponent<BiomeVisualManager>();
-                    if (biomeVisualManager == null)
-                    {
-                        Debug.LogError("Could not find BiomeVisualManager on Character component");
-                    }
-
-
-
-                    // resize the collider to cover exactly chunkW × chunkH × chunkD
-
-
-                    // assign your biome type
-                    var v = volume.GetComponent<BiomeVolume>();
-                    if (v != null)
-                        v.biomeData = data;
-
-                    yield return null;
-                }
-            }
+            // assign your biome data
+            var v = volume.GetComponent<BiomeVolume>();
+            if (v!=null) v.biomeData = data;
         }
     }
-
-    
 }

@@ -719,6 +719,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -180
       objectReference: {fileID: 0}
+    - target: {fileID: 8716805114225526049, guid: 98cee4f8c3242d94f97db080d1fbf4b4,
+        type: 3}
+      propertyPath: sceneViewId
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -984,6 +989,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 90, z: 0}
+--- !u!1 &1349994410 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1499302050473082854, guid: 69935c32d65f45445824441004919eac,
+    type: 3}
+  m_PrefabInstance: {fileID: 3015809393015377035}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1349994411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349994410}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79daf24e7275c0e46ae8d1cf57863057, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapMagic: {fileID: 0}
+  worldChunksX: 4
+  worldChunksZ: 4
+  biomeVolumePrefab: {fileID: 0}
+  seaFloorPrefab: {fileID: 0}
+  chunkWorldSize: 500
+  chunkHeight: 20
+  verticalLayers: 4
+  waterLevel: 0
+  biomePresets: []
+  seed: 1337
+  temperatureScale: 0.01
+  moistureScale: 0.01
+  offsetX: 0
+  offsetZ: 0
+  biomeCellSize: 1
+  biomeMapOrigin: {x: 0, y: 0}
 --- !u!1 &1476476517
 GameObject:
   m_ObjectHideFlags: 0
@@ -1394,10 +1434,67 @@ PrefabInstance:
       propertyPath: m_Name
       value: MultiplayerManager
       objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: worldDepth
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: worldWidth
+      value: 200
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: chunkHeight
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: chunkWorldSize
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: seaFloorPrefab
+      value: 
+      objectReference: {fileID: 848021038397545985, guid: 563fdfeb1a232c344b57c2a81576ebfb,
+        type: 3}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: heightMultiplier
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: biomePresets.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: biomePresets.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: fb509b7fdf803804088706e46f1d272d,
+        type: 2}
+    - target: {fileID: 1617152232281971172, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      propertyPath: biomePresets.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 697756dbb55d6104597b0d606b15ba3d,
+        type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 1499302050473082854, guid: 69935c32d65f45445824441004919eac,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1349994411}
   m_SourcePrefab: {fileID: 100100000, guid: 69935c32d65f45445824441004919eac, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

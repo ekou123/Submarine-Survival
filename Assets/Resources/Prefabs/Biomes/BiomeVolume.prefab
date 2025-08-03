@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: 2694622272551627718}
   - component: {fileID: 2416586735430169554}
   - component: {fileID: -6438756358156456035}
-  - component: {fileID: 7094707669339374004}
   m_Layer: 0
   m_Name: BiomeVolume
   m_TagString: Untagged
@@ -71,7 +70,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 409616292096e1e499e035d5b3012410, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  biomeType: 0
+  biomeData: {fileID: 0}
 --- !u!114 &-6833436131713873076
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -153,29 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c6e6a49276a37a4d9afb42c729b15ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  profiles:
-  - {fileID: 11400000, guid: fc67f420f46a28043979ca844fca0c9b, type: 2}
+  detector: {fileID: 0}
   globalVolume: {fileID: 0}
   directionalLight: {fileID: 0}
-  detector: {fileID: 0}
-  _waterSurface: {fileID: 0}
---- !u!114 &7094707669339374004
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2596270570022300684}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b92f50bb2a859a848959de1433ea6f64, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  chunkPrefab: {fileID: 2596270570022300684}
-  viewRadius: 2
-  chunkSize: 500
-  scale: 1
-  resolution: 1
-  noiseFreq: 0.1
-  heightMul: 10
-  player: {fileID: 0}
+  waterSurface: {fileID: 0}

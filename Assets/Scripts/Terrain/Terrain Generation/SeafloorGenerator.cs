@@ -1,128 +1,123 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+[RequireComponent(typeof(MeshFilter))]
 public class SeafloorGenerator : MonoBehaviour
 {
     [Header("Mesh Settings")]
-    public int resolution = 100;   // verts per side
-    public float scale = 1f;    // world units between verts
-    public float heightMul = 10f;
-    public float noiseFreq = 0.1f;
-    public Vector2 noiseOffset;
-    [SerializeField] private float chunkWorldSize = 500f;
-    [SerializeField] private float chunkHeight = 500f;
+    public int resolution = 100;    // verts per side
 
-    [Header("Seafloor Settings")]
-    private int seed;
-    private Vector2 chunkOrigin;
-    private float tileSpacing;
-    private float offsetX;
-    private float offsetZ;
+    // these get blended per-vertex:
+    private float offsetX, offsetZ; 
+    private BiomeData[,] globalBiomeMap;
+    private float biomeCellSize;    // world units per cell in globalBiomeMap
+    private Vector2 biomeMapOrigin; // world coords of (0,0) in globalBiomeMap
 
+    [Header("Ocean Slope Settings")]
+    public float globalSlopeStart     =  0f;   // where the drop begins
+    public float globalSlopeStrength  =  0.5f; // tweak this in the inspector
 
-    [Header("Slope Settings")]
-    public float slopeStrength = 0.5f;
-    public float slopeStartZ = 0f;
-
-    [HideInInspector] public int chunkX, chunkZ;
-    [HideInInspector] public BiomeData biomeData;
-
-    MeshFilter _mf;
-    float _meshSize;   // = (resolution-1)*scale
+    // derived per-chunk:
+    private float _meshSize;        // = chunkWorldSize
+    private MeshFilter _mf;
 
     void Awake()
     {
         _mf = GetComponent<MeshFilter>();
-        //_meshSize = (resolution - 1) * scale;
-    }
-
-    void Start()
-    {
-        // pass the chunk's world offset into the shader
-        var rend = GetComponent<MeshRenderer>();
-        var mat = rend.material;
-        mat.SetFloat("_NoiseScale", noiseFreq);
-        mat.SetFloat("_HeightMul", heightMul);
-        // world-space offset for noise tiling:
-        mat.SetVector("_NoiseOffset", new Vector4(
-            chunkX * _meshSize + transform.position.x,
-            chunkZ * _meshSize + transform.position.z,
-            0, 0
-        ));
-
-        StartCoroutine(BuildMeshCoroutine());
     }
 
     public void Init(
-    int seed,
-    int chunkX,
-    int chunkZ,
-    float spacing,
-    float offsetX,
-    float offsetZ,
-    float chunkWorldSize,
-    BiomeData data           // ← new param
-) {
-    this.biomeData = data;
+        int seed,
+        int chunkX,
+        int chunkZ,
+        float chunkWorldSize,
+        float offsetX,
+        float offsetZ,
+        BiomeData[,] globalBiomeMap,
+        float biomeCellSize,
+        Vector2 biomeMapOrigin
+    ) {
+        this.offsetX         = offsetX;
+        this.offsetZ         = offsetZ;
+        this.globalBiomeMap  = globalBiomeMap;
+        this.biomeCellSize   = biomeCellSize;
+        this.biomeMapOrigin  = biomeMapOrigin;
+        this._meshSize       = chunkWorldSize;
+    }
 
-    // now pull your per-biome settings:
-    this.heightMul     = data.heightMultiplier;
-    this.noiseFreq     = data.noiseFrequency;
-    this.slopeStrength = data.slopeStrength;
-    this.slopeStartZ   = data.slopeStartZ;
-    // …any other biome-specific overrides…
-
-    // rest of your init:
-    this.scale    = chunkWorldSize / (resolution - 1);
-    this._meshSize = chunkWorldSize;
-    this.seed      = seed;
-    this.chunkOrigin = new Vector2(chunkX, chunkZ);                                                                                                                                                                                                       
-    this.tileSpacing = spacing;
-    this.offsetX    = offsetX;
-    this.offsetZ    = offsetZ;
-}
+    public void Build()
+    {
+        StartCoroutine(BuildMeshCoroutine());
+    }
 
     IEnumerator BuildMeshCoroutine()
     {
         int N = resolution;
         int vertCount = N * N;
         var verts = new Vector3[vertCount];
-        var uvs = new Vector2[vertCount];
-        var tris = new int[(N - 1) * (N - 1) * 6];
+        var uvs   = new Vector2[vertCount];
+        var tris  = new int[(N - 1) * (N - 1) * 6];
 
-        // half-size so we can center the pivot
         float half = _meshSize * 0.5f;
 
-        // 1) build vertices & UVs in LOCAL space (centered)
+        // 1) vertices + UVs
         for (int z = 0; z < N; z++)
         {
             for (int x = 0; x < N; x++)
             {
                 int i = x + z * N;
-                // local position ranges from -half .. +half
+                // local coord
                 Vector3 local = new Vector3(
-                    x * scale - half,
+                    x * (_meshSize / (N - 1)) - half,
                     0,
-                    z * scale - half
+                    z * (_meshSize / (N - 1)) - half
                 );
+                Vector3 worldPos = transform.position + local;
 
-                // for noise, sample in WORLD space:
-                Vector3 worldSample = transform.position + local;
+                // —— lookup & blend 4 biomes —— 
+                float fx = (worldPos.x - biomeMapOrigin.x) / biomeCellSize;
+                float fz = (worldPos.z - biomeMapOrigin.y) / biomeCellSize;
+                int ix = Mathf.Clamp(Mathf.FloorToInt(fx), 0, globalBiomeMap.GetLength(0) - 2);
+                int iz = Mathf.Clamp(Mathf.FloorToInt(fz), 0, globalBiomeMap.GetLength(1) - 2);
+                float u = fx - ix, v = fz - iz;
 
-                float slope = Mathf.Max(0, worldSample.z - slopeStartZ) * slopeStrength;
-                float h = Mathf.PerlinNoise(
-                    (worldSample.x + noiseOffset.x) * noiseFreq,
-                    (worldSample.z + noiseOffset.y) * noiseFreq
-                ) * heightMul + slope;
+                BiomeData b00 = globalBiomeMap[ix,   iz];
+                BiomeData b10 = globalBiomeMap[ix+1, iz];
+                BiomeData b01 = globalBiomeMap[ix,   iz+1];
+                BiomeData b11 = globalBiomeMap[ix+1, iz+1];
+
+                float w00 = (1-u)*(1-v), w10 = u*(1-v), w01 = (1-u)*v, w11 = u*v;
+
+                // blend parameters
+                float noiseFreq     = b00.noiseFrequency * w00 + b10.noiseFrequency * w10 + b01.noiseFrequency * w01 + b11.noiseFrequency * w11;
+                float heightMul     = b00.heightMultiplier * w00 + b10.heightMultiplier * w10 + b01.heightMultiplier * w01 + b11.heightMultiplier * w11;
+    
+                float blendedSlopeStart   = b00.slopeStartZ   * w00 + b10.slopeStartZ   * w10 + b01.slopeStartZ   * w01 + b11.slopeStartZ   * w11;
+                float blendedSlopeStrength= b00.slopeStrength * w00 + b10.slopeStrength * w10 + b01.slopeStrength * w01 + b11.slopeStrength * w11;
+
+                // 2) Compute your height
+                float noise = Mathf.PerlinNoise(
+                      (worldPos.x + offsetX) * noiseFreq,
+                      (worldPos.z + offsetZ) * noiseFreq
+                  ) * heightMul;
+
+                // local biome slope
+                float localSlope = Mathf.Max(0, worldPos.z - blendedSlopeStart) 
+                       * blendedSlopeStrength;
+
+                // optional: keep a global ocean‐floor drop
+                float globalDrop = Mathf.Max(0, worldPos.z - globalSlopeStart) 
+                       * globalSlopeStrength;
+
+                float h = noise + localSlope + globalDrop;
 
                 verts[i] = local + Vector3.down * h;
-                uvs[i] = new Vector2(x / (float)(N - 1), z / (float)(N - 1));
+                uvs[i]   = new Vector2(x / (float)(N - 1), z / (float)(N - 1));
             }
             yield return null;
         }
 
-        // 2) build triangles
+        // 2) build tris
         int t = 0;
         for (int z = 0; z < N - 1; z++)
         {
@@ -139,45 +134,16 @@ public class SeafloorGenerator : MonoBehaviour
             yield return null;
         }
 
-        // 3) build mesh
-        var mesh = new Mesh
-        {
+        // 3) finalize
+        var mesh = new Mesh {
             indexFormat = vertCount > 65000
                 ? UnityEngine.Rendering.IndexFormat.UInt32
                 : UnityEngine.Rendering.IndexFormat.UInt16
         };
-        mesh.vertices = verts;
+        mesh.vertices  = verts;
         mesh.triangles = tris;
-        mesh.uv = uvs;
+        mesh.uv        = uvs;
         mesh.RecalculateNormals();
-        _mf.mesh = mesh;
-
-        Debug.Log($"[Mesh] scale: {scale}, meshSize: {_meshSize}, position: {transform.position}");
+        _mf.mesh       = mesh;
     }
-
-    
-
-// #if UNITY_EDITOR
-//     void OnDrawGizmos()
-//     {
-//         // compute the total span of your mesh:
-//         float meshSize = (resolution - 1) * scale;
-
-//         // pick a color
-//         Gizmos.color = Color.cyan;
-
-//         // draw a wire‐frame cube at this GameObject’s position,
-//         // centered on the XZ grid, 1 unit tall
-//         Vector3 center = transform.position;
-//         Vector3 size = new Vector3(meshSize, 1f, meshSize);
-//         Gizmos.DrawWireCube(center, size);
-//     }
-// #endif
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position, new Vector3(_meshSize, 1, _meshSize));
-    }
-
 }
