@@ -110,18 +110,24 @@ public class BiomeManager : MonoBehaviour
             var data = GetClosestBiome(temp, moist, depthY);
             if (data==null) continue;
 
+
+            
             // spawn your biome volume at the correct world Y
-            Vector3 spawnPos = new Vector3(centerXZ.x, depthY - chunkHeight*0.5f, centerXZ.z);
+            Vector3 spawnPos = new Vector3(centerXZ.x, depthY - chunkHeight * 0.5f, centerXZ.z);
             var volume = Instantiate(biomeVolumePrefab, spawnPos, Quaternion.identity, go.transform);
 
-            // set up its collider
+                // set up its collider
             var box = volume.GetComponent<BoxCollider>();
-            box.size   = new Vector3(size.x, chunkHeight, size.z);
+            box.size = new Vector3(size.x, chunkHeight, size.z);
             box.center = Vector3.zero;
-
+                
             // assign your biome data
             var v = volume.GetComponent<BiomeVolume>();
             if (v!=null) v.biomeData = data;
+            
+            
+
+            
         }
     }
 }
