@@ -35,16 +35,17 @@ public class BiomeManager : MonoBehaviour
         if (mapMagicObj == null) mapMagicObj = GetComponent<MapMagicObject>();
 
         // 2) build your 2D biome lookup table once
-        BuildBiomeMap();
+
+        // BuildBiomeMap();
 
         // 3) hook into MapMagic’s tile‐creation event
-        mapMagicObj.tiles.onTileCreated += OnTileCreated;
+        // mapMagicObj.tiles.onTileCreated += OnTileCreated;
     }
 
     void OnDestroy()
     {
         // unhook to avoid leaks
-        mapMagicObj.tiles.onTileCreated -= OnTileCreated;
+        // mapMagicObj.tiles.onTileCreated -= OnTileCreated;
     }
 
     // ---------------  

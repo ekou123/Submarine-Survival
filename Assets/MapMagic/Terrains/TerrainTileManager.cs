@@ -187,8 +187,9 @@ namespace MapMagic.Core
 		#region Serialization
 
 		public Coord[] serializedPinnedCoords = new Coord[0];
+        public Action<Coord, TerrainTile> onTileCreated;
 
-			public override void OnBeforeSerialize () 
+        public override void OnBeforeSerialize () 
 			{
 				base.OnBeforeSerialize();
 
